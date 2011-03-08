@@ -1,0 +1,3 @@
+module Modelish
+  # Your code goes here...
+end
