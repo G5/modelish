@@ -94,4 +94,70 @@ describe Modelish::Base do
       end
     end
   end
+
+  describe ".new with typed property" do
+    before { model_class.property(property_name, :type => property_type) }
+    let(:property_name) { :my_property }
+    let(:default_value) { nil }
+
+    subject { model }
+
+    context "when :type => Integer" do
+      let(:property_type) { Integer }
+
+      it_should_behave_like 'a typed property', :my_property, Integer do
+        let(:valid_string) { '42' }
+        let(:valid_typed_value) { 42 }
+        let(:invalid_value) { 'forty-two' }
+      end
+    end
+
+    context "when :type => Float" do
+      let(:property_type) { Float }
+
+      it_should_behave_like 'a typed property', :my_property, Float do
+        let(:valid_string) { '42.5' }
+        let(:valid_typed_value) { 42.5 }
+        let(:invalid_value) { 'forty-two point five' }
+      end
+    end
+
+    context "when :type => Date" do
+      let(:property_type) { Date }
+
+      it_should_behave_like 'a typed property', :my_property, Date do
+        let(:valid_string) { '2011-03-10' }
+        let(:valid_typed_value) { Date.civil(2011, 03, 10) }
+        let(:invalid_value) { 'foo' }
+      end
+    end
+
+    context "when :type => String" do
+      let(:property_type) { String }
+
+      it_should_behave_like 'a typed property', :my_property, String do
+        let(:valid_string) { 'my_string' }
+        let(:valid_typed_value) { valid_string }
+      end
+    end
+
+    context "when :type => Symbol" do
+      let(:property_type) { Symbol }
+
+      it_should_behave_like 'a typed property', :my_property, Symbol do
+        let(:valid_string) { 'MyCrazy    String' }
+        let(:valid_typed_value) { :my_crazy_string }
+        let(:invalid_value) { Array.new }
+      end
+    end
+
+    context "when :type => Array" do
+      let(:property_type) { Array }
+
+      it_should_behave_like 'a typed property', :my_property, Array do
+        let(:valid_string) { 'my valid string' }
+        let(:valid_typed_value) { ['my valid string'] }
+      end
+    end
+  end
 end
