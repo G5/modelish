@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Maeve Revels"]
   s.email       = ["maeve.revels@g5platform.com"]
   s.homepage    = "http://github.com/maeve/#{s.name}"
-  s.summary     = %q{A lightweight modeling framework}
-  s.description = %q{Sometimes you just need something a little modelish.}
+  s.summary     = %q{A lightweight pseudo-modeling not-quite-framework}
+  s.description = %q{Sometimes you need something just a little modelish.}
 
   s.rubyforge_project = s.name
 
