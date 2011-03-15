@@ -7,7 +7,7 @@ describe Modelish::Base do
 
   it { should respond_to(:property) }
 
-  describe "simple property" do
+  describe "with simple property" do
     before { model_class.property(property_name) }
 
     subject { model }
@@ -29,7 +29,7 @@ describe Modelish::Base do
     end
   end
 
-  describe "property with default value" do
+  describe "with property default value" do
     before { model_class.property(property_name, :default => default_value) }
     let(:property_name) { :default_property }
     let(:default_value) { 42 }
@@ -62,7 +62,7 @@ describe Modelish::Base do
     end
   end
 
-  describe "property with translated key" do
+  describe "with translated property" do
     before { model_class.property(property_name, :from => from_name) }
     let(:property_name) { :translated_property }
     let(:from_name) { 'OldPropertyNAME' }
@@ -95,69 +95,29 @@ describe Modelish::Base do
     end
   end
 
-  describe ".new with typed property" do
-    before { model_class.property(property_name, :type => property_type) }
-    let(:property_name) { :my_property }
-    let(:default_value) { nil }
+  describe "with typed property" do
+    before { model_class.property(property_name, options) }
 
-    subject { model }
+    let(:property_name) { :my_int_property }
+    let(:property_type) { Integer }
+    let(:valid_string) { '42' }
+    let(:valid_typed_value) { 42 }
+    let(:invalid_value) { '42.0' }
 
-    context "when :type => Integer" do
-      let(:property_type) { Integer }
+    context "without default value" do
+      let(:options) { {:type => property_type} }
 
-      it_should_behave_like 'a typed property', :my_property, Integer do
-        let(:valid_string) { '42' }
-        let(:valid_typed_value) { 42 }
-        let(:invalid_value) { 'forty-two' }
+      it_should_behave_like 'a typed property', :my_int_property, Integer do
+        let(:default_value) { nil }
       end
     end
 
-    context "when :type => Float" do
-      let(:property_type) { Float }
+    context "with default value" do
+      let(:options) { {:type => property_type, :default => default_value} }
 
-      it_should_behave_like 'a typed property', :my_property, Float do
-        let(:valid_string) { '42.5' }
-        let(:valid_typed_value) { 42.5 }
-        let(:invalid_value) { 'forty-two point five' }
-      end
-    end
+      let(:default_value) { 0 }
 
-    context "when :type => Date" do
-      let(:property_type) { Date }
-
-      it_should_behave_like 'a typed property', :my_property, Date do
-        let(:valid_string) { '2011-03-10' }
-        let(:valid_typed_value) { Date.civil(2011, 03, 10) }
-        let(:invalid_value) { 'foo' }
-      end
-    end
-
-    context "when :type => String" do
-      let(:property_type) { String }
-
-      it_should_behave_like 'a typed property', :my_property, String do
-        let(:valid_string) { 'my_string' }
-        let(:valid_typed_value) { valid_string }
-      end
-    end
-
-    context "when :type => Symbol" do
-      let(:property_type) { Symbol }
-
-      it_should_behave_like 'a typed property', :my_property, Symbol do
-        let(:valid_string) { 'MyCrazy    String' }
-        let(:valid_typed_value) { :my_crazy_string }
-        let(:invalid_value) { Array.new }
-      end
-    end
-
-    context "when :type => Array" do
-      let(:property_type) { Array }
-
-      it_should_behave_like 'a typed property', :my_property, Array do
-        let(:valid_string) { 'my valid string' }
-        let(:valid_typed_value) { ['my valid string'] }
-      end
+      it_should_behave_like 'a typed property', :my_int_property, Integer
     end
   end
 end

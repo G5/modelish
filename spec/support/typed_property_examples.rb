@@ -23,6 +23,15 @@ shared_examples_for "a typed property" do |prop_name, prop_type|
 
   it { should respond_to(mutator) }
 
+  describe "property_type mapping" do
+    subject { model.class.property_types }
+
+    it { should be }
+    it { should have_key(prop_name) }
+
+    its([prop_name]) { should == property_type }
+  end
+
   describe "assignment" do
     before { model.send(mutator, property_value) }
 
@@ -65,7 +74,7 @@ shared_examples_for "a typed property" do |prop_name, prop_type|
       its(bang_accessor) { should == valid_typed_value }
     end
 
-    unless [String, Array].include?(prop_type)
+    unless [String, Array, Symbol].include?(prop_type)
       context "with a value that cannot be converted" do
         let(:property_value) { invalid_value }
 
