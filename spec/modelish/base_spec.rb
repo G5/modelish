@@ -7,21 +7,33 @@ describe Modelish::Base do
 
   it { should respond_to(:property) }
 
-  describe "with simple property" do
+  context "with simple property" do
     before { model_class.property(property_name) }
 
     subject { model }
 
     let(:property_name) { :simple_property }
+    let(:property_value) { 'simple string value' }
 
     it { should respond_to(property_name) }
     it { should respond_to("#{property_name}=".to_sym) }
 
-    its(:simple_property) { should be_nil }
+    describe "getter" do
+      subject { model.send(property_name) }
 
-    describe "simple_property=" do
+      context "without init options" do
+        it { should be_nil }
+      end
+
+      context "with init options" do
+        let(:model) { model_class.new(property_name => property_value) }
+
+        it { should == property_value }
+      end
+    end
+
+    describe "setter" do
       subject { model.simple_property = property_value }
-      let(:property_value) { 'simple string value' }
 
       it "should change the property value" do
         expect { subject }.to change{model.send(property_name)}.from(nil).to(property_value)
@@ -29,19 +41,33 @@ describe Modelish::Base do
     end
   end
 
-  describe "with property default value" do
+  context "with property default value" do
     before { model_class.property(property_name, :default => default_value) }
-    let(:property_name) { :default_property }
-    let(:default_value) { 42 }
 
     subject { model }
+
+    let(:property_name) { :default_property }
+    let(:default_value) { 42 }
 
     it { should respond_to(property_name) }
     it { should respond_to("#{property_name}=".to_sym) }
 
-    its(:default_property) { should == default_value }
+    describe "getter" do
+      subject { model.send(property_name) }
 
-    describe "default_property=" do
+      context "without init options" do
+        it { should == default_value }
+      end
+
+      context "with init options" do
+        let(:model) { model_class.new(property_name => property_value) }
+        let(:property_value) { 'non-default value' }
+
+        it { should == property_value }
+      end
+    end
+
+    describe "setter" do
       subject { model.default_property = property_value }
 
       context "with nil" do
@@ -62,32 +88,44 @@ describe Modelish::Base do
     end
   end
 
-  describe "with translated property" do
+  context "with translated property" do
     before { model_class.property(property_name, :from => from_name) }
-    let(:property_name) { :translated_property }
-    let(:from_name) { 'OldPropertyNAME' }
 
     subject { model }
+
+    let(:property_name) { :translated_property }
+    let(:from_name) { 'OldPropertyNAME' }
+    let(:property_value) { 'new value' }
 
     it { should respond_to(property_name) }
     it { should respond_to("#{property_name}=") }
     it { should_not respond_to(from_name) }
     it { should respond_to("#{from_name}=") }
 
-    its(:translated_property) { should be_nil }
+    describe "getter" do
+      subject { model.send(property_name) }
 
-    describe "translated_property=" do
+      context "without init options" do
+        it { should be_nil }
+      end
+
+      context "with init options" do
+        let(:model) { model_class.new(from_name => property_value) }
+
+        it { should == property_value }
+      end
+    end
+
+    describe "translated setter" do
       subject { model.translated_property = property_value }
-      let(:property_value) { 'new value' }
 
       it "should change the property value" do
         expect { subject }.to change{model.send(property_name)}.from(nil).to(property_value)
       end
     end
 
-    describe "OldPropertyNAME=" do
+    describe "original setter" do
       subject { model.OldPropertyNAME = property_value }
-      let(:property_value) { 'new property value' }
 
       it "should change the property value" do
         expect { subject }.to change{model.send(property_name)}.from(nil).to(property_value)
@@ -95,8 +133,10 @@ describe Modelish::Base do
     end
   end
 
-  describe "with typed property" do
+  context "with typed property" do
     before { model_class.property(property_name, options) }
+
+    subject { model }
 
     let(:property_name) { :my_int_property }
     let(:property_type) { Integer }
@@ -106,15 +146,22 @@ describe Modelish::Base do
 
     context "without default value" do
       let(:options) { {:type => property_type} }
+      let(:default_value) { nil }
 
-      it_should_behave_like 'a typed property', :my_int_property, Integer do
-        let(:default_value) { nil }
+      context "without init options" do
+        it_should_behave_like 'a typed property', :my_int_property, Integer
+      end
+
+      context "with init options" do
+        let(:model) { model_class.new(property_name => valid_string) }
+
+        its(:my_int_property) { should == valid_typed_value }
+        its(:raw_my_int_property) { should == valid_string }
       end
     end
 
     context "with default value" do
       let(:options) { {:type => property_type, :default => default_value} }
-
       let(:default_value) { 0 }
 
       it_should_behave_like 'a typed property', :my_int_property, Integer

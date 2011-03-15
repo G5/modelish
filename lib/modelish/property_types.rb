@@ -36,23 +36,39 @@ module Modelish
       #   * an instance of +Proc+ -- will convert the value by executing the proc,
       #                              passing in the raw value as an argument
       def add_property_type(property_name, property_type=String)
-        property_types[property_name] = property_type
+        accessor = property_name.to_sym
+        property_types[accessor] = property_type
 
-        converter = value_converter(property_type)
+        raw_accessor = define_raw_accessor(accessor)
+        bang_accessor = define_bang_accessor(accessor)
+
+        typed_accessor = "_typed_#{accessor}".to_sym
+        typed_mutator = "#{typed_accessor}=".to_sym
+        to_safe = "_to_safe_#{accessor}".to_sym
 
         class_eval do
-          attr_reader property_name.to_sym unless method_defined?(property_name.to_sym)
-          attr_writer property_name.to_sym unless method_defined?("#{property_name}=".to_sym)
+          attr_accessor typed_accessor
+          private typed_accessor, typed_mutator
 
-          alias_method("raw_#{property_name}".to_sym, property_name.to_sym)
+          define_method(to_safe) do
+            self.send(bang_accessor) rescue self.send(raw_accessor)
+          end
+          private to_safe
 
-          define_method("#{property_name}!".to_sym) do
-            value = self.send("raw_#{property_name}")
-            (converter && value) ? converter.call(value) : value
+          define_method(accessor) do
+            val = self.send(typed_accessor)
+
+            unless val || self.send(raw_accessor).nil?
+              val = self.send(to_safe)
+              self.send(typed_mutator, val)
+            end
+
+            val
           end
 
-          define_method(property_name.to_sym) do
-            self.send("#{property_name}!".to_sym) rescue self.send("raw_#{property_name}")
+          define_method("#{accessor}=") do |val|
+            self.send("#{raw_accessor}=", val)
+            self.send(typed_mutator, self.send(to_safe))
           end
         end
       end
@@ -62,6 +78,39 @@ module Modelish
       end
 
       private
+      def define_raw_accessor(name)
+        accessor = name.to_sym
+        raw_accessor = "raw_#{name}".to_sym
+
+        mutator = "#{name}=".to_sym
+        raw_mutator = "raw_#{name}=".to_sym
+
+        class_eval do
+          if method_defined?(accessor) && method_defined?(mutator)
+            alias_method(raw_accessor, accessor)
+            alias_method(raw_mutator, mutator)
+          else
+            attr_accessor raw_accessor
+          end
+        end
+
+        raw_accessor
+      end
+
+      def define_bang_accessor(property_name)
+        bang_accessor = "#{property_name}!".to_sym
+        converter = value_converter(property_types[property_name.to_sym])
+
+        class_eval do
+          define_method(bang_accessor) do
+            value = self.send("raw_#{property_name}")
+            (converter && value) ? converter.call(value) : value
+          end
+        end
+
+        bang_accessor
+      end
+
       def value_converter(property_type)
         if property_type == Date
           lambda { |val| Date.parse(val.to_s) }
