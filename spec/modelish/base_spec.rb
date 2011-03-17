@@ -3,89 +3,32 @@ require 'spec_helper'
 describe Modelish::Base do
   subject { model_class } 
   let(:model_class) { Class.new(Modelish::Base) }
-  let(:model) { model_class.new }
+
+  let(:model) { model_class.new(init_options) }
+  let(:init_options) { nil }
+  let(:default_value) { nil }
 
   it { should respond_to(:property) }
 
   context "with simple property" do
     before { model_class.property(property_name) }
 
-    subject { model }
-
     let(:property_name) { :simple_property }
     let(:property_value) { 'simple string value' }
 
-    it { should respond_to(property_name) }
-    it { should respond_to("#{property_name}=".to_sym) }
-
-    describe "getter" do
-      subject { model.send(property_name) }
-
-      context "without init options" do
-        it { should be_nil }
-      end
-
-      context "with init options" do
-        let(:model) { model_class.new(property_name => property_value) }
-
-        it { should == property_value }
-      end
-    end
-
-    describe "setter" do
-      subject { model.simple_property = property_value }
-
-      it "should change the property value" do
-        expect { subject }.to change{model.send(property_name)}.from(nil).to(property_value)
-      end
-    end
+    it_should_behave_like 'a modelish property'
+    it_should_behave_like 'a valid model'
   end
 
   context "with property default value" do
     before { model_class.property(property_name, :default => default_value) }
 
-    subject { model }
-
     let(:property_name) { :default_property }
+    let(:property_value) { 'non-default value' }
     let(:default_value) { 42 }
 
-    it { should respond_to(property_name) }
-    it { should respond_to("#{property_name}=".to_sym) }
-
-    describe "getter" do
-      subject { model.send(property_name) }
-
-      context "without init options" do
-        it { should == default_value }
-      end
-
-      context "with init options" do
-        let(:model) { model_class.new(property_name => property_value) }
-        let(:property_value) { 'non-default value' }
-
-        it { should == property_value }
-      end
-    end
-
-    describe "setter" do
-      subject { model.default_property = property_value }
-
-      context "with nil" do
-        let(:property_value) { nil }
-
-        it "should set the value to nil" do
-          expect { subject }.to change{model.send(property_name)}.from(default_value).to(nil)
-        end
-      end
-
-      context "with non-nil value" do
-        let(:property_value) { 'new value' }
-
-        it "should change the property value" do
-          expect { subject }.to change{model.send(property_name)}.from(default_value).to(property_value)
-        end
-      end
-    end
+    it_should_behave_like 'a modelish property'
+    it_should_behave_like 'a valid model'
   end
 
   context "with translated property" do
@@ -97,40 +40,20 @@ describe Modelish::Base do
     let(:from_name) { 'OldPropertyNAME' }
     let(:property_value) { 'new value' }
 
-    it { should respond_to(property_name) }
-    it { should respond_to("#{property_name}=") }
+    it_should_behave_like 'a modelish property'
+
     it { should_not respond_to(from_name) }
     it { should respond_to("#{from_name}=") }
 
-    describe "getter" do
-      subject { model.send(property_name) }
-
-      context "without init options" do
-        it { should be_nil }
-      end
-
-      context "with init options" do
-        let(:model) { model_class.new(from_name => property_value) }
-
-        it { should == property_value }
-      end
-    end
-
-    describe "translated setter" do
-      subject { model.translated_property = property_value }
-
-      it "should change the property value" do
-        expect { subject }.to change{model.send(property_name)}.from(nil).to(property_value)
-      end
-    end
-
     describe "original setter" do
-      subject { model.OldPropertyNAME = property_value }
+      subject { model.send("#{from_name}=", property_value) }
 
       it "should change the property value" do
         expect { subject }.to change{model.send(property_name)}.from(nil).to(property_value)
       end
     end
+
+    it_should_behave_like 'a valid model'
   end
 
   context "with typed property" do
@@ -140,6 +63,7 @@ describe Modelish::Base do
 
     let(:property_name) { :my_int_property }
     let(:property_type) { Integer }
+
     let(:valid_string) { '42' }
     let(:valid_typed_value) { 42 }
     let(:invalid_value) { '42.0' }
@@ -150,6 +74,7 @@ describe Modelish::Base do
 
       context "without init options" do
         it_should_behave_like 'a typed property', :my_int_property, Integer
+        it_should_behave_like 'a valid model'
       end
 
       context "with init options" do
@@ -157,6 +82,8 @@ describe Modelish::Base do
 
         its(:my_int_property) { should == valid_typed_value }
         its(:raw_my_int_property) { should == valid_string }
+
+        it_should_behave_like 'a valid model'
       end
     end
 
@@ -165,6 +92,64 @@ describe Modelish::Base do
       let(:default_value) { 0 }
 
       it_should_behave_like 'a typed property', :my_int_property, Integer
+
+      it_should_behave_like 'a valid model'
     end
+  end
+
+  context "with required property" do
+    before { model_class.property(property_name, prop_options) }
+
+    let(:property_name) { :my_required_property }
+    let(:prop_options) { {:required => true} }
+    let(:property_value) { 'a valid string' }
+
+    subject { model }
+
+    let(:init_options) { {property_name => property_value} }
+
+    it_should_behave_like 'a modelish property'
+
+    context "when property value is not nil" do
+      it_should_behave_like 'a valid model'
+    end
+
+    context "when property value is nil" do
+      let(:property_value) { nil }
+
+      it_should_behave_like 'a model with an invalid property' do
+        let(:error_count) { 1 }
+      end
+    end
+
+    context "when property value is an empty string" do
+      let(:property_value) { '          ' }
+
+      it_should_behave_like 'a model with an invalid property' do
+        let(:error_count) { 1 }
+      end
+    end
+  end
+
+  context "with length-restricted property" do
+
+    context "when property value is nil" do
+    end
+
+    context "when property value is a valid string" do
+    end
+
+    context "when property value is too long" do
+    end
+
+    context "when property value is not a string" do
+
+    end
+  end
+
+  context "with validator block" do
+  end
+
+  context "with multiple validations" do
   end
 end
