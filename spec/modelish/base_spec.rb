@@ -162,7 +162,32 @@ describe Modelish::Base do
     end
   end
 
-  context "with validator block" do
+  context "with property that has validator block" do
+    before { model_class.property(property_name, :validator => validator_block ) }
+
+    let(:property_name) { :validated_property }
+    let(:validator_block) do
+      lambda { |val| "#{property_name} must support to_hash" unless val.respond_to?(:to_hash) }
+    end
+    let(:property_value) { Hash.new }
+
+    subject { model }
+
+    let(:init_options) { {property_name => property_value} }
+
+    it_should_behave_like 'a modelish property'
+
+    context "when value is valid" do
+      it_should_behave_like 'a valid model'
+    end
+
+    context "when value is invalid" do
+      let(:property_value) { Array.new }
+
+      it_should_behave_like 'a model with an invalid property' do
+        let(:error_count) { 1 }
+      end
+    end
   end
 
   context "with type validation enabled" do
