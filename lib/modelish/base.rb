@@ -27,6 +27,7 @@ module Modelish
 
       add_property_type(name, options[:type]) if options[:type]
       add_validator(name) { |val| validate_required(name => val).first } if options[:required]
+      add_validator(name) { |val| validate_length(name, val, options[:max_length]) } if options[:max_length]
     end
   end
 end

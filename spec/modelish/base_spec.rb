@@ -98,10 +98,9 @@ describe Modelish::Base do
   end
 
   context "with required property" do
-    before { model_class.property(property_name, prop_options) }
+    before { model_class.property(property_name, :required => true) }
 
     let(:property_name) { :my_required_property }
-    let(:prop_options) { {:required => true} }
     let(:property_value) { 'a valid string' }
 
     subject { model }
@@ -132,22 +131,41 @@ describe Modelish::Base do
   end
 
   context "with length-restricted property" do
+    before { model_class.property(property_name, :required => false, :max_length => max_length) }
+
+    let(:property_name) { :my_required_property }
+    let(:property_value) { 'a' * (max_length - 1) }
+    let(:max_length) { 10 }
+
+    subject { model }
+
+    let(:init_options) { {property_name => property_value} }
+
+    it_should_behave_like 'a modelish property'
 
     context "when property value is nil" do
+      let(:property_value) { nil }
+
+      it_should_behave_like 'a valid model'
     end
 
     context "when property value is a valid string" do
+      it_should_behave_like 'a valid model'
     end
 
     context "when property value is too long" do
-    end
+      let(:property_value) { 'a' * (max_length + 1) }
 
-    context "when property value is not a string" do
-
+      it_should_behave_like 'a model with an invalid property' do
+        let(:error_count) { 1 }
+      end
     end
   end
 
   context "with validator block" do
+  end
+
+  context "with type validation enabled" do
   end
 
   context "with multiple validations" do
