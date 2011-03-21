@@ -141,6 +141,68 @@ module Modelish
           ArgumentError.new("#{name} must be less than #{max_length} characters")
         end
       end
+
+      # Validates the type of the value, returning a boolean indicating validation
+      # outcome.
+      #
+      # @see #validate_type
+      # @param {see #validate_type}
+      # @return [true,false] true when the value is the correct type; false otherwise
+      def validate_type?(name, value, type)
+        validate_type(name, value, type).nil?
+      end
+
+      # Validates the type of the value, raising an error when the value is not
+      # of the correct type.
+      #
+      # @see #validate_type
+      # @param {see #validate_type}
+      # @raise [ArgumentError] when the value is not the correct type
+      def validate_type!(name, value, type)
+        error = validate_type(name, value, type)
+        raise error if error
+      end
+
+      # Validates the type of the value, returning an error when the value cannot
+      # be converted to the appropriate type.
+      #
+      # @param [Symbol,String] name the name of the property/argument to be validated
+      # @param [Object] value the value to be validated
+      # @param [Class,Proc] type the type of the class to be validated. Supported types include:
+      #   * +Integer+
+      #   * +Float+
+      #   * +Date+
+      #   * +Symbol+ 
+      #   * any arbitrary +Class+ -- validates based on the results of is_a?
+      # @return [ArgumentError] when validation fails
+      def validate_type(name, value, type)
+        error = nil
+
+        begin
+          if value && type
+            # Can't use a case statement because of the way === is implemented on some classes
+            if type == Integer
+              is_valid = (value.is_a?(Integer) || value.to_s =~ /^\-?\d+$/)
+            elsif type == Float
+              is_valid = (value.is_a?(Float) || value.to_s =~ /^\-?\d+\.?\d*$/)
+            elsif type == Date
+              is_valid = (value.is_a?(Date) || Date.parse(value)) 
+            elsif type == Symbol
+              is_valid = value.respond_to?(:to_sym)
+            else
+              is_valid = value.is_a?(type)
+            end
+
+            unless is_valid
+              error = ArgumentError.new("#{name} must be of type #{type}, but got #{value.inspect}")
+            end
+          end
+        rescue StandardError => e
+          error = ArgumentError.new("An error occurred validating #{name} with value #{value.inspect}: #{e.message}")
+        end
+
+        error
+      end
     end
   end
 end

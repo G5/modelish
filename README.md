@@ -25,7 +25,7 @@ For the especially foolhardy, you can:
 ## Basics ##
 
 The modelish syntax is very similar to some of the classes provided by 
-[hashie]. In fact, the initial implementation simply extends 
+[hashie]. In fact, the initial implementation simply extended 
 [Hashie::Trash][trash] to add property types:
 
         require 'modelish'
@@ -54,7 +54,44 @@ key-mappings:
        f.my_simple_property
          => "bar" 
 
-**TODO:** modelish will eventually support simple validations.
+modelish also supports defining simple property validations:
+
+        class Bar < Modelish::Base
+            property :important_field, :required => true
+            property :state, :max_length => 2
+            property :my_int, :type => Integer, :validate_type => true
+            property :another_field, :validator => lambda { |val| "val must respond to []" unless val.respond_to?(:[]) }
+        end
+
+Validations can be run using methods that return an error map (keyed on property name), raise errors, or return a boolean value to indicate validation outcome.
+
+        valid_bar = Bar.new(:important_field => 'some value', 
+                            :state => 'OR', 
+                            :my_int => 42, 
+                            :another_field => Hash.new)
+        valid_bar.valid?
+          => true
+
+        valid_bar.validate
+          => {}
+
+        valid_bar.validate!
+          => nil
+
+
+        invalid_bar = Bar.new(:state => 'a value that is too long',
+                              :my_int => 'this is not an integer',
+                              :another_field => Object.new)
+        invalid_bar.valid?
+          => false
+
+        invalid_bar.validate
+          => {:important_field=>[#<ArgumentError: important_field must not be nil or blank>], :my_int=>[#<ArgumentError: my_int must be of type Integer, but got "this is not an integer">], :another_field=>[#<ArgumentError: val must respond to []>], :state=>[#<ArgumentError: state must be less than 2 characters>]}
+
+        invalid_bar.validate!
+          ArgumentError: important_field must not be nil or blank
+                  from /Users/maeverevels/projects/modelish/lib/modelish/validations.rb:31:in `validate!'
+                  ...
 
  [hashie]: https://github.com/intridea/hashie
  [trash]: http://rdoc.info/github/intridea/hashie/master/Hashie/Trash

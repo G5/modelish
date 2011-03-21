@@ -236,6 +236,281 @@ describe Modelish::Validations do
     end
   end
 
+  it { should respond_to(:validate_type) }
+
+  describe ".validate_type" do
+    subject { model_class.validate_type(property_name, property_value, property_type) }
+
+    context "for type Integer" do
+      let(:property_type) { Integer }
+
+      context "with nil value" do
+        let(:property_value) { nil }
+
+        it { should be_nil }
+      end
+
+      context "with valid int" do
+        let(:property_value) { 42 }
+
+        it { should be_nil }
+      end
+
+      context "with valid string" do
+        let(:property_value) { '42' }
+
+        it { should be_nil }
+      end
+
+      context "with invalid value" do
+        let(:property_value) { 42.99 }
+
+        it { should be_an ArgumentError }
+        its(:message) { should match(/#{property_name}/i) }
+        its(:message) { should match(/#{property_value.inspect}/i) }
+        its(:message) { should match(/#{property_type}/i) }
+      end
+    end
+
+    context "for type Float" do
+      let(:property_type) { Float }
+
+      context "with nil value" do
+        let(:property_value) { nil }
+
+        it { should be_nil }
+      end
+
+      context "with valid float value" do
+        let(:property_value) { 42.5 }
+
+        it { should be_nil }
+      end
+
+      context "with valid string" do
+        let(:property_value) { '42.5' }
+
+        it { should be_nil }
+      end
+
+      context "with valid type that can be upcast" do
+        let(:property_value) { 42 }
+
+        it { should be_nil }
+      end
+
+      context "with invalid value" do
+        let(:property_value) { 'forty-two' }
+
+        it { should be_an ArgumentError }
+        its(:message) { should match(/#{property_name}/i) }
+        its(:message) { should match(/#{property_value.inspect}/i) }
+        its(:message) { should match(/#{property_type}/i) }
+      end
+    end
+
+    context "for type Array" do
+      let(:property_type) { Array }
+
+      context "with nil" do
+        let(:property_value) { nil }
+
+        it { should be_nil }
+      end
+      context "with a valid array" do
+        let(:property_value) { [1,2,3] }
+
+        it { should be_nil }
+      end
+
+      context "with an invalid value" do
+        let(:property_value) { {1 => 2, 3 => 4} }
+
+        it { should be_an ArgumentError }
+        its(:message) { should match(/#{property_name}/i) }
+        its(:message) { should match(/#{property_value.inspect.gsub('{', '\{').gsub('}', '\}')}/i) }
+        its(:message) { should match(/#{property_type}/i) }
+      end
+    end
+
+    context "for an arbitrary class" do
+      let(:property_type) { Hash }
+
+      context "with nil value" do
+        let(:property_value) { nil }
+
+        it { should be_nil }
+      end
+
+      context "with valid hash value" do
+        let(:property_value) { {1 => 2} }
+
+        it { should be_nil }
+      end
+
+      context "with invalid value" do
+        let(:property_value) { [1,2] }
+
+        it { should be_an ArgumentError }
+        its(:message) { should match(/#{property_name}/i) }
+        its(:message) { should match(/#{property_value.inspect}/i) }
+        its(:message) { should match(/#{property_type}/i) }
+      end
+    end
+
+    context "for type Date" do
+      let(:property_type) { Date }
+
+      context "with nil value" do
+        let(:property_value) { nil }
+
+        it { should be_nil }
+      end
+
+      context "with valid string" do
+        let(:property_value) { '2011-03-10' }
+
+        it { should be_nil }
+      end
+
+      context "with valid Date" do
+        let(:property_value) { Date.civil(2011, 3, 10) }
+
+        it { should be_nil }
+      end
+
+      context "with invalid value" do
+        let(:property_value) { 'this is not a date' }
+
+        it { should be_an ArgumentError }
+        its(:message) { should match(/#{property_name}/i) }
+        its(:message) { should match(/#{property_value.inspect}/i) }
+        its(:message) { should match(/#{property_type}/i) }
+      end
+    end
+
+    context "for a Symbol type" do
+      let(:property_type) { Symbol }
+
+      context "with nil value" do
+        let(:property_value) { nil }
+
+        it { should be_nil }
+      end
+
+      context "with a valid string" do
+        let(:property_value) { 'my string' }
+
+        it { should be_nil }
+      end
+
+      context "with a valid symbol" do
+        let(:property_value) { :my_symbol }
+
+        it { should be_nil }
+      end
+
+      context "with an invalid value" do
+        let(:property_value) { Object.new }
+
+        it { should be_an ArgumentError }
+        its(:message) { should match(/#{property_name}/i) }
+        its(:message) { should match(/#{property_value.inspect}/i) }
+        its(:message) { should match(/#{property_type}/i) }
+      end
+    end
+
+    context "when type is nil" do
+      let(:property_type) { nil }
+
+      context "with any value" do
+        let(:property_value) { 'foo' } 
+
+        it { should be_nil }
+      end
+    end
+  end
+
+  it { should respond_to(:validate_type!) }
+
+  describe ".validate_type!" do
+    subject { model_class.validate_type!(property_name, property_value, property_type) }
+
+    context "for type Integer" do
+      let(:property_type) { Integer }
+
+      context "with nil value" do
+        let(:property_value) { nil }
+
+        it "should not raise any errors" do
+          expect { subject }.to_not raise_error
+        end
+      end
+
+      context "with valid int" do
+        let(:property_value) { 42 }
+
+        it "should not raise any errors" do
+          expect { subject }.to_not raise_error
+        end
+      end
+
+      context "with valid string" do
+        let(:property_value) { '42' }
+
+        it "should not raise any errors" do
+          expect { subject }.to_not raise_error
+        end
+      end
+
+      context "with invalid value" do
+        let(:property_value) { 42.99 }
+
+        it "should raise an ArgumentError" do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+
+        it "should reference the property name in the error message" do
+          expect { subject }.to raise_error { |e| e.message.should match(/#{property_name}/i) }
+        end
+      end
+    end
+  end
+
+  it { should respond_to(:validate_type?) }
+
+  describe ".validate_type?" do
+    subject { model_class.validate_type?(property_name, property_value, property_type) }
+
+    context "for type Integer" do
+      let(:property_type) { Integer }
+
+      context "with nil value" do
+        let(:property_value) { nil }
+
+        it { should be_true }
+      end
+
+      context "with valid int" do
+        let(:property_value) { 42 }
+
+        it { should be_true }
+      end
+
+      context "with valid string" do
+        let(:property_value) { '42' }
+
+        it { should be_true }
+      end
+
+      context "with invalid value" do
+        let(:property_value) { 42.99 }
+
+        it { should be_false }
+      end
+    end
+  end
+
   it { should respond_to(:add_validator) }
 
   context "with simple validated property" do

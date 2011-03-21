@@ -163,7 +163,7 @@ describe Modelish::Base do
   end
 
   context "with property that has validator block" do
-    before { model_class.property(property_name, :validator => validator_block ) }
+    before { model_class.property(property_name, :validator => validator_block) }
 
     let(:property_name) { :validated_property }
     let(:validator_block) do
@@ -190,9 +190,96 @@ describe Modelish::Base do
     end
   end
 
-  context "with type validation enabled" do
+  context "with type-validated property" do
+    before { model_class.property(property_name, prop_options) }
+
+    let(:prop_options) { {:type => Integer, :validate_type => true} }
+    let(:property_name) { :strict_typed_property }
+    let(:property_value) { 42 }
+
+    subject { model }
+
+    let(:init_options) { {property_name => property_value} }
+
+    it_should_behave_like 'a modelish property'
+
+    context "when value is nil" do
+      let(:property_value) { nil }
+
+      it_should_behave_like 'a valid model'
+    end
+
+    context "when value is valid" do
+      let(:property_value) { '42' }
+
+      it_should_behave_like 'a valid model'
+    end
+
+    context "when value is invalid" do
+      let(:property_value) { 'forty-two' }
+
+      it_should_behave_like 'a model with an invalid property' do
+        let(:error_count) { 1 }
+      end
+    end
+
+    context "with no property type" do
+      let(:prop_options) { {:validate_type => true} }
+
+      context "when value is nil" do
+        let(:property_value) { nil }
+
+        it_should_behave_like 'a valid model'
+      end
+
+      context "when value is not nil" do
+        let(:property_value) { Object.new }
+
+        it_should_behave_like 'a valid model'
+      end
+    end
   end
 
   context "with multiple validations" do
+    before do 
+      model_class.property(property_name, :required => true, 
+                                          :max_length => 3, 
+                                          :type => Symbol, 
+                                          :validate_type => true)
+    end
+
+    let(:init_options) { {property_name => property_value} }
+
+    let(:property_name) { :prop_with_many_validations }
+
+    context "when value is valid" do
+      let(:property_value) { :foo }
+
+      it_should_behave_like 'a valid model'
+    end
+
+    context "when value is nil" do
+      let(:property_value) { nil }
+
+      it_should_behave_like 'a model with an invalid property' do
+        let(:error_count) { 1 }
+      end
+    end
+
+    context "when value is too long" do
+      let(:property_value) { :crazy_long_value }
+
+      it_should_behave_like 'a model with an invalid property' do
+        let(:error_count) { 1 }
+      end
+    end
+
+    context "when value is not a symbol" do
+      let(:property_value) { Object.new }
+
+      it_should_behave_like 'a model with an invalid property' do
+        let(:error_count) { 1 }
+      end
+    end
   end
 end
