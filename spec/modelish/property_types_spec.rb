@@ -59,9 +59,9 @@ describe Modelish::PropertyTypes do
       let(:property_type) { String }
 
       it_should_behave_like 'a typed property', :my_property, String do
-        let(:valid_string) { 'my_string' }
-        let(:valid_typed_value) { valid_string }
-      end
+        let(:valid_string) { "\tmy_string  \n" }
+        let(:valid_typed_value) { "my_string" }
+      end 
     end
 
     context "when property_type is Symbol" do

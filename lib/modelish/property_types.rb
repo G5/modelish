@@ -115,9 +115,11 @@ module Modelish
         if property_type == Date
           lambda { |val| Date.parse(val.to_s) }
         elsif property_type == Symbol
-          lambda { |val| val.to_s.gsub(/([A-Z]+)([A-Z][a-z])/, '\\1_\\2').
+          lambda { |val| val.to_s.strip.gsub(/([A-Z]+)([A-Z][a-z])/, '\\1_\\2').
                                           gsub(/([a-z\d])([A-Z])/, '\\1_\\2').
                                           gsub(/\s+|-/,'_').downcase.to_sym }
+        elsif property_type == String
+          lambda { |val| val.to_s.strip }
         elsif Kernel.respond_to?(property_type.to_s) 
           lambda { |val| Kernel.send(property_type.to_s, val) }
         elsif property_type.respond_to?(:call)
