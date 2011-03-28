@@ -389,6 +389,37 @@ describe Modelish::Validations do
       end
     end
 
+    context "for type DateTime" do
+      let(:property_type) { DateTime }
+
+      context "with nil value" do
+        let(:property_value) { nil }
+
+        it { should be_nil }
+      end
+
+      context "with valid string" do
+        let(:property_value) { '2011-03-10T03:15:23-05:00' }
+
+        it { should be_nil }
+      end
+
+      context "with valid DateTime" do
+        let(:property_value) { DateTime.civil(2011, 3, 10, 3, 15, 23, Rational(-5, 24)) }
+
+        it { should be_nil }
+      end
+
+      context "with invalid value" do
+        let(:property_value) { 'this is not a date time' }
+
+        it { should be_an ArgumentError }
+        its(:message) { should match(/#{property_name}/i) }
+        its(:message) { should match(/#{property_value.inspect}/i) }
+        its(:message) { should match(/#{property_type}/i) }
+      end
+    end
+
     context "for a Symbol type" do
       let(:property_type) { Symbol }
 

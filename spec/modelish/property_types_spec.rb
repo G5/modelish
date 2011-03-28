@@ -55,6 +55,16 @@ describe Modelish::PropertyTypes do
       end
     end
 
+    context "when property_type is DateTime" do
+      let(:property_type) { DateTime }
+
+      it_should_behave_like 'a typed property', :my_property, DateTime do
+        let(:valid_string) { '2011-02-24T14:09:43-07:00' }
+        let(:valid_typed_value) { DateTime.civil(2011, 2, 24, 14, 9, 43, Rational(-7, 24)) }
+        let(:invalid_value) { 'foo' }
+      end
+    end
+
     context "when property_type is String" do
       let(:property_type) { String }
 

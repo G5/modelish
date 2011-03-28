@@ -29,6 +29,7 @@ module Modelish
       #   * +Float+
       #   * +Array+
       #   * +Date+ -- converts using Date.parse on value.to_s
+      #   * +DateTime+ -- converts using DateTime.parse on value.to_s
       #   * +Symbol+ -- also converts from camel case to snake case
       #   * +String+
       #   * any arbitrary +Class+ -- will attempt conversion by passing the raw
@@ -112,8 +113,8 @@ module Modelish
       end
 
       def value_converter(property_type)
-        if property_type == Date
-          lambda { |val| Date.parse(val.to_s) }
+        if [Date, DateTime].include?(property_type)
+          lambda { |val| property_type.parse(val.to_s) }
         elsif property_type == Symbol
           lambda { |val| val.to_s.strip.gsub(/([A-Z]+)([A-Z][a-z])/, '\\1_\\2').
                                           gsub(/([a-z\d])([A-Z])/, '\\1_\\2').

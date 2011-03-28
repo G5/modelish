@@ -172,6 +172,7 @@ module Modelish
       #   * +Integer+
       #   * +Float+
       #   * +Date+
+      #   * +DateTime+
       #   * +Symbol+ 
       #   * any arbitrary +Class+ -- validates based on the results of is_a?
       # @return [ArgumentError] when validation fails
@@ -185,8 +186,8 @@ module Modelish
               is_valid = (value.is_a?(Integer) || value.to_s =~ /^\-?\d+$/)
             elsif type == Float
               is_valid = (value.is_a?(Float) || value.to_s =~ /^\-?\d+\.?\d*$/)
-            elsif type == Date
-              is_valid = (value.is_a?(Date) || Date.parse(value)) 
+            elsif [Date, DateTime].include?(type)
+              is_valid = value.is_a?(type) || (type.parse(value.to_s) rescue false)
             elsif type == Symbol
               is_valid = value.respond_to?(:to_sym)
             else
