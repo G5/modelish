@@ -10,8 +10,6 @@ help.
 If you need persistence or anything but the most basic functionality, modelish 
 will frustrate you to no end.
 
-modelish has not been officially released yet, and may change at any time.
-
 ## Installation ##
 
 For the especially foolhardy, you can:
