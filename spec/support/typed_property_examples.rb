@@ -29,7 +29,11 @@ shared_examples_for "a typed property" do |prop_name, prop_type|
     it { should be }
     it { should have_key(prop_name) }
 
-    its([prop_name]) { should == property_type }
+    if prop_type
+      its([prop_name]) { should == prop_type }
+    else
+      its([prop_name]) { should be_a Proc }
+    end
   end
 
   describe "assignment" do

@@ -38,38 +38,45 @@ module Modelish
       #                              passing in the raw value as an argument
       def add_property_type(property_name, property_type=String)
         accessor = property_name.to_sym
-        property_types[accessor] = property_type
 
-        raw_accessor = define_raw_accessor(accessor)
-        bang_accessor = define_bang_accessor(accessor)
+        # TODO: Refactor. This method is getting unwieldy as more 
+        # corner cases are discovered. A few well-placed design
+        # refinements should take care of it (now we just need to figure
+        # out what those are.)
+        unless property_types[accessor] == property_type
+          property_types[accessor] = property_type
 
-        typed_accessor = "_typed_#{accessor}".to_sym
-        typed_mutator = "#{typed_accessor}=".to_sym
-        to_safe = "_to_safe_#{accessor}".to_sym
+          raw_accessor = define_raw_accessor(accessor)
+          bang_accessor = define_bang_accessor(accessor)
 
-        class_eval do
-          attr_accessor typed_accessor
-          private typed_accessor, typed_mutator
+          typed_accessor = "_typed_#{accessor}".to_sym
+          typed_mutator = "#{typed_accessor}=".to_sym
+          to_safe = "_to_safe_#{accessor}".to_sym
 
-          define_method(to_safe) do
-            self.send(bang_accessor) rescue self.send(raw_accessor)
-          end
-          private to_safe
+          class_eval do
+            attr_accessor typed_accessor
+            private typed_accessor, typed_mutator
 
-          define_method(accessor) do
-            val = self.send(typed_accessor)
+            define_method(to_safe) do
+              self.send(bang_accessor) rescue self.send(raw_accessor)
+            end
+            private to_safe
 
-            unless val || self.send(raw_accessor).nil?
-              val = self.send(to_safe)
-              self.send(typed_mutator, val)
+            define_method(accessor) do
+              val = self.send(typed_accessor)
+
+              unless val || self.send(raw_accessor).nil?
+                val = self.send(to_safe)
+                self.send(typed_mutator, val)
+              end
+
+              val
             end
 
-            val
-          end
-
-          define_method("#{accessor}=") do |val|
-            self.send("#{raw_accessor}=", val)
-            self.send(typed_mutator, self.send(to_safe))
+            define_method("#{accessor}=") do |val|
+              self.send("#{raw_accessor}=", val)
+              self.send(typed_mutator, self.send(to_safe))
+            end
           end
         end
       end
@@ -87,11 +94,13 @@ module Modelish
         raw_mutator = "raw_#{name}=".to_sym
 
         class_eval do
-          if method_defined?(accessor) && method_defined?(mutator)
-            alias_method(raw_accessor, accessor)
-            alias_method(raw_mutator, mutator)
-          else
-            attr_accessor raw_accessor
+          unless method_defined?(raw_accessor) && method_defined?(raw_mutator)
+            if method_defined?(accessor) && method_defined?(mutator)
+              alias_method(raw_accessor, accessor)
+              alias_method(raw_mutator, mutator)
+            else
+              attr_accessor raw_accessor
+            end
           end
         end
 

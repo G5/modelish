@@ -134,5 +134,39 @@ describe Modelish::PropertyTypes do
         let(:invalid_value) { Object.new }
       end
     end
+
+    context "when a property is defined more than once" do
+      before { model_class.add_property_type(property_name, other_property_type) }
+
+      let(:property_type) { Integer } 
+
+      context "with the same property_type" do
+        let(:other_property_type) { property_type }
+
+        it "should not raise an error when the property is accessed" do
+          expect { model.send(property_name) }.to_not raise_error
+        end
+
+        it_should_behave_like 'a typed property', :my_property, Integer do
+          let(:valid_string) { '112358' }
+          let(:valid_typed_value) { 112358 }
+          let(:invalid_value) { 'blah' }
+        end
+      end
+
+      context "with different property_types" do
+        let(:other_property_type) { Float }
+
+        it "should not raise an error when the property is accessed" do
+          expect { model.send(property_name) }.to_not raise_error
+        end
+
+        it_should_behave_like 'a typed property', :my_property, Float do
+          let(:valid_string) { '112358.13' }
+          let(:valid_typed_value) { 112358.13 }
+          let(:invalid_value) { 'blah' }
+        end
+      end
+    end
   end
 end
