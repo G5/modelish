@@ -12,13 +12,9 @@ will frustrate you to no end.
 
 ## Installation ##
 
-For the especially foolhardy, you can:
+modelish is available on [Rubygems][rubygems] and can be installed via:
 
-1. Add this to your Gemfile:
-
-         gem 'modelish', :git => 'git://github.com/maeve/modelish.git'
-
-2. Execute `bundle install`
+         $ gem install modelish
 
 ## Basics ##
 
@@ -93,3 +89,4 @@ Validations can be run using methods that return an error map (keyed on property
 
  [hashie]: https://github.com/intridea/hashie
  [trash]: http://rdoc.info/github/intridea/hashie/master/Hashie/Trash
+ [rubygems]: https://rubygems.org/gems/modelish
