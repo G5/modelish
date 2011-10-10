@@ -10,6 +10,45 @@ describe Modelish::Base do
 
   it { should respond_to(:property) }
 
+  context 'without any properties' do
+    subject { model }
+
+    context 'when the model is initialized with an unknown property' do
+      let(:init_options) { {unknown_prop => 'whatever'} }
+      let(:unknown_prop) { :foo }
+
+      context 'when ignore_unknown_properties is configured at the class level' do
+        before { model_class.ignore_unknown_properties = ignore_unknown_props }
+        after { model_class.reset }
+
+        it_should_behave_like 'an unknown property handler'
+      end
+
+      context "when ignore_unknown_properties is configured globally" do
+        before { Modelish.configure { |c| c.ignore_unknown_properties = ignore_unknown_props } }
+        after { Modelish.reset }
+
+        it_should_behave_like 'an unknown property handler'
+
+        context 'when ignore_unknown_properties is configured differently at the class level' do
+          before { Modelish.configure { |c| c.ignore_unknown_properties = !ignore_unknown_props } }
+          after { Modelish.reset }
+
+          before { model_class.ignore_unknown_properties = ignore_unknown_props }
+          after { model_class.reset }
+
+          it_should_behave_like 'an unknown property handler'
+        end
+      end
+
+      context 'when ignore_unknown_properties has not been configured' do
+        it 'should raise an error' do
+          expect { subject }.to raise_error(NoMethodError)
+        end
+      end
+    end
+  end
+
   context "with simple property" do
     before { model_class.property(property_name) }
 

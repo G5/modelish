@@ -1,11 +1,13 @@
 require 'hashie'
-require 'property_types'
-require 'validations'
+require 'modelish/property_types'
+require 'modelish/validations'
+require 'modelish/configuration'
 
 module Modelish
   class Base < Hashie::Trash
     include PropertyTypes
     include Validations
+    extend Configuration
 
     # Creates a new attribute.
     #
@@ -39,6 +41,18 @@ module Modelish
       add_validator(name) { |val| validate_length(name, val, options[:max_length]) } if options[:max_length]
       add_validator(name, &options[:validator]) if options[:validator]
       add_validator(name) { |val| validate_type(name, val, options[:type]) } if options[:validate_type]
+    end
+
+    private
+    def property_exists?(property)
+      if self.class.property?(property.to_sym)
+        true
+      elsif self.class.ignore_unknown_properties || 
+            (self.class.ignore_unknown_properties.nil? && Modelish.ignore_unknown_properties)
+        false
+      else
+        raise NoMethodError, "The property '#{property}' is not defined for this Modelish object."
+      end
     end
   end
 end
