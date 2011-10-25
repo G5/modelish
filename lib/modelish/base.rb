@@ -21,14 +21,14 @@ module Modelish
     # @option opts [Class,Proc] :type the type of the property value. For
     #                                 a list of accepted types, see
     #                                 {Modelish::PropertyTypes}
-    # @options opts [true,false] :required enables validation for the property
+    # @option opts [true,false] :required enables validation for the property
     #                                      value's presence; nil or blank values
     #                                      will cause validation methods to fail
-    # @options opts [Integer] :max_length the maximum allowable length for a valid
+    # @option opts [Integer] :max_length the maximum allowable length for a valid
     #                                     property value
-    # @options opts [true,false] :validate_type enables validation for the property value's
+    # @option opts [true,false] :validate_type enables validation for the property value's
     #                                           type based on the :type option
-    # @options opts [Proc] :validator A block that accepts a value and validates it;
+    # @option opts [Proc] :validator A block that accepts a value and validates it;
     #                                 should return nil if validation passes, or an error
     #                                 message or error object if validation fails.
     #                                 See {Modelish::Validations}
