@@ -1,9 +1,17 @@
-## O.1.2 (2011-03-31)
+# CHANGELOG
+
+## 0.1.3 (2011-10-25)
+
+* Added configuration option to ignore unknown properties. The default behavior continues
+  to be raising an error when an unknown property name is encountered in an initialization
+  hash.
+
+## 0.1.2 (2011-03-31)
 
 * Fixed SystemStackError when a typed property with the same name is defined multiple times.
 * Use explicit path when loading modelish classes.
 
-## O.1.1 (2011-03-28)
+## 0.1.1 (2011-03-28)
 
 * Add DateTime to standard supported property types.
 
