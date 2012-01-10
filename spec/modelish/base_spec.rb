@@ -47,6 +47,11 @@ describe Modelish::Base do
         end
       end
     end
+
+    describe "#to_hash" do
+      subject { model.to_hash }
+      it { should be_empty }
+    end
   end
 
   context "with simple property" do
@@ -57,6 +62,15 @@ describe Modelish::Base do
 
     it_should_behave_like 'a modelish property'
     it_should_behave_like 'a valid model'
+
+    describe "#to_hash" do
+      let(:init_options) { {property_name => property_value} }
+      subject { model.to_hash }
+
+      it { should have(1).key_pair }
+      it { should have_key(property_name.to_s) }
+      its(['simple_property']) { should == property_value }
+    end
   end
 
   context "with property default value" do
@@ -68,6 +82,24 @@ describe Modelish::Base do
 
     it_should_behave_like 'a modelish property'
     it_should_behave_like 'a valid model'
+
+    describe "#to_hash" do
+      subject { model.to_hash }
+
+      context "with default value" do
+        it { should have(1).key_pair }
+        it { should have_key(property_name.to_s) }
+        its(["default_property"]) { should == default_value }
+      end
+
+      context 'without default value' do
+        let(:init_options) { {property_name => property_value} }
+
+        it { should have(1).key_pair }
+        it { should have_key(property_name.to_s) }
+        its(["default_property"]) { should == property_value }
+      end
+    end
   end
 
   context "with translated property" do
@@ -93,6 +125,26 @@ describe Modelish::Base do
     end
 
     it_should_behave_like 'a valid model'
+
+    describe "#to_hash" do
+      subject { model.to_hash }
+
+      context "when set from original property name" do
+        let(:init_options) { {property_name => property_value} }
+
+        it { should have(1).key_pair }
+        it { should have_key(property_name.to_s) }
+        its(['translated_property']) { should == property_value }
+      end
+
+      context "when set from translation" do
+        let(:init_options) { {from_name => property_value} }
+
+        it { should have(1).key_pair }
+        it { should have_key(property_name.to_s) }
+        its(['translated_property']) { should == property_value }
+      end
+    end
   end
 
   context "with typed property" do
@@ -114,6 +166,14 @@ describe Modelish::Base do
       context "without init options" do
         it_should_behave_like 'a typed property', :my_int_property, Integer
         it_should_behave_like 'a valid model'
+
+        describe "#to_hash" do
+          subject { model.to_hash }
+
+          it { should have(1).key_pair }
+          it { should have_key(property_name.to_s) }
+          its(['my_int_property']) { should be_nil }
+        end
       end
 
       context "with init options" do
@@ -123,6 +183,14 @@ describe Modelish::Base do
         its(:raw_my_int_property) { should == valid_string }
 
         it_should_behave_like 'a valid model'
+
+        describe "#to_hash" do
+          subject { model.to_hash }
+
+          it { should have(1).key_pair }
+          it { should have_key(property_name.to_s) }
+          its(['my_int_property']) { should == valid_typed_value }
+        end
       end
     end
 
@@ -133,6 +201,14 @@ describe Modelish::Base do
       it_should_behave_like 'a typed property', :my_int_property, Integer
 
       it_should_behave_like 'a valid model'
+
+      describe "#to_hash" do
+        subject { model.to_hash }
+
+        it { should have(1).key_pair }
+        it { should have_key(property_name.to_s) }
+        its(['my_int_property']) { should == default_value }
+      end
     end
   end
 

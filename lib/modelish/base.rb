@@ -43,6 +43,18 @@ module Modelish
       add_validator(name) { |val| validate_type(name, val, options[:type]) } if options[:validate_type]
     end
 
+    # Convert this Modelish object into a vanilla Hash with stringified keys.
+    #
+    # @return [Hash] the hash of properties
+    def to_hash
+      out = {}
+      self.class.properties.each do |p|
+        val = self.send(p)
+        out[p.to_s] = val.respond_to?(:to_hash) ? val.to_hash : val
+      end
+      out
+    end
+
     private
     def property_exists?(property)
       if self.class.property?(property.to_sym)
