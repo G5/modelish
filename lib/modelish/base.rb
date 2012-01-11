@@ -1,10 +1,12 @@
 require 'hashie'
+require 'modelish/property_translations'
 require 'modelish/property_types'
 require 'modelish/validations'
 require 'modelish/configuration'
 
 module Modelish
-  class Base < Hashie::Trash
+  class Base < Hashie::Dash
+    include PropertyTranslations
     include PropertyTypes
     include Validations
     extend Configuration
@@ -36,6 +38,7 @@ module Modelish
       super
 
       add_property_type(name, options[:type]) if options[:type]
+      add_property_translation(options[:from], name) if options[:from]
 
       add_validator(name) { |val| validate_required(name => val).first } if options[:required]
       add_validator(name) { |val| validate_length(name, val, options[:max_length]) } if options[:max_length]
@@ -53,6 +56,14 @@ module Modelish
         out[p.to_s] = val.respond_to?(:to_hash) ? val.to_hash : val
       end
       out
+    end
+
+    def []=(property, value)
+      if self.class.translations.keys.include?(property.to_sym)
+        send("#{property}=", value)
+      elsif property_exists?(property)
+        super
+      end
     end
 
     private

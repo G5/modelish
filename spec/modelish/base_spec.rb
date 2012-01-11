@@ -103,46 +103,136 @@ describe Modelish::Base do
   end
 
   context "with translated property" do
-    before { model_class.property(property_name, :from => from_name) }
+    before { model_class.property(to_name, :from => from_name) }
 
-    subject { model }
-
-    let(:property_name) { :translated_property }
+    let(:to_name) { :translated_property }
     let(:from_name) { 'OldPropertyNAME' }
     let(:property_value) { 'new value' }
 
-    it_should_behave_like 'a modelish property'
+    subject { model }
 
-    it { should_not respond_to(from_name) }
-    it { should respond_to("#{from_name}=") }
+    context 'when there is one translation for the source property' do
+      it_should_behave_like 'a modelish property' do
+        let(:property_name) { to_name }
+      end
 
-    describe "original setter" do
-      subject { model.send("#{from_name}=", property_value) }
+      it { should_not respond_to(from_name) }
+      it { should respond_to("#{from_name}=") }
 
-      it "should change the property value" do
-        expect { subject }.to change{model.send(property_name)}.from(nil).to(property_value)
+      describe "translated mutator" do
+        subject { model.send("#{from_name}=", property_value) }
+
+        it "should change the property value" do
+          expect { subject }.to change{model.send(to_name)}.from(nil).to(property_value)
+        end
+      end
+
+      it_should_behave_like 'a valid model'
+
+      describe "#to_hash" do
+        subject { model.to_hash }
+
+        context "when set from untranslated property name" do
+          let(:init_options) { {to_name => property_value} }
+
+          it { should have(1).key_pair }
+          it { should have_key(to_name.to_s) }
+          its(['translated_property']) { should == property_value }
+        end
+
+        context "when set from the translation" do
+          let(:init_options) { {from_name => property_value} }
+
+          it { should have(1).key_pair }
+          it { should have_key(to_name.to_s) }
+          its(['translated_property']) { should == property_value }
+        end
       end
     end
 
-    it_should_behave_like 'a valid model'
+    context 'when there are multiple translations for the source property' do
+      before { model_class.property(other_to_name, :from => from_name) }
+      let(:other_to_name) { :my_other_prop }
 
-    describe "#to_hash" do
-      subject { model.to_hash }
-
-      context "when set from original property name" do
-        let(:init_options) { {property_name => property_value} }
-
-        it { should have(1).key_pair }
-        it { should have_key(property_name.to_s) }
-        its(['translated_property']) { should == property_value }
+      it_should_behave_like 'a modelish property' do
+        let(:property_name) { other_to_name }
       end
 
-      context "when set from translation" do
-        let(:init_options) { {from_name => property_value} }
+      it_should_behave_like 'a modelish property' do
+        let(:property_name) { to_name }
+      end
 
-        it { should have(1).key_pair }
-        it { should have_key(property_name.to_s) }
-        its(['translated_property']) { should == property_value }
+      it_should_behave_like 'a valid model'
+
+      it { should_not respond_to(from_name) }
+      it { should respond_to("#{from_name}=") }
+
+      describe "translated mutator" do
+        subject { model.send("#{from_name}=", property_value) }
+
+        it "should change the first property's value" do
+          expect { subject }.to change{model.send(to_name)}.from(nil).to(property_value)
+        end
+
+        it "should change the other property's value" do
+          expect { subject }.to change { model.send(other_to_name) }.from(nil).to(property_value)
+        end
+      end
+
+      describe "#to_hash" do
+        subject { model.to_hash }
+
+        context 'when initialized with first property' do
+          let(:init_options) { {to_name => property_value} }
+
+          it { should have(2).key_pairs }
+
+          it { should have_key(to_name.to_s) }
+          its(['translated_property']) { should == property_value }
+
+          it { should have_key(other_to_name.to_s) }
+          its(['my_other_prop']) { should be_nil }
+        end
+
+        context 'when initialized with second property' do
+          let(:init_options) { {other_to_name => property_value} }
+
+          it { should have(2).key_pairs }
+
+          it { should have_key(to_name.to_s) }
+          its(['translated_property']) { should be_nil }
+
+          it { should have_key(other_to_name.to_s) }
+          its(['my_other_prop']) { should == property_value }
+        end
+
+        context 'when initialized with translated property' do
+          let(:init_options) { {from_name => property_value} }
+
+          context 'when there are no individual property initializations' do
+
+            it { should have(2).key_pairs }
+
+            it { should have_key(to_name.to_s) }
+            its(['translated_property']) { should == property_value }
+
+            it { should have_key(other_to_name.to_s) } 
+            its(['my_other_prop']) { should == property_value }
+          end
+
+          context 'when one of the destination properties is independently initialized' do
+            before { init_options[to_name] = other_value }
+            let(:other_value) { 'and now for something completely different' }
+
+            it { should have(2).key_pairs }
+
+            it { should have_key(to_name.to_s) }
+            its(['translated_property']) { should == other_value }
+
+            it { should have_key(other_to_name.to_s) }
+            its(['my_other_prop']) { should == property_value }
+          end
+        end
       end
     end
   end
