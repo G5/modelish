@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.2.0 (2012-1-16)
+
+* Added support for mapping the same input property name to multiple outputs. This means that
+  Modelish::Base#translations is now a Hash instead of an Array.
+* Bug fix for Modelish::Base#to_hash to return typed property values
+
 ## 0.1.3 (2011-10-25)
 
 * Added configuration option to ignore unknown properties. The default behavior continues
