@@ -11,6 +11,26 @@ module Modelish
     include Validations
     extend Configuration
 
+    def initialize(attributes = {}, &block)
+      super(&block)
+
+      self.class.defaults.each_pair do |prop, value|
+        self[prop] = value
+      end
+
+      attributes.delete_if do |k,v|
+        if self.class.translations.keys.include?(k.to_sym)
+          self[k]=v
+          true
+        end
+      end if attributes
+
+      attributes.each_pair do |att, value|
+        self[att] = value
+      end if attributes
+    end
+
+
     # Creates a new attribute.
     #
     # @param [Symbol] name the name of the property
@@ -53,7 +73,12 @@ module Modelish
       out = {}
       self.class.properties.each do |p|
         val = self.send(p)
-        out[p.to_s] = val.respond_to?(:to_hash) ? val.to_hash : val
+        if val.is_a?(Array)
+          out[p.to_s]||=[]
+          out[p.to_s].concat(val.collect{|x|x.respond_to?(:to_hash) ? x.to_hash : x})
+        else
+          out[p.to_s] = val.respond_to?(:to_hash) ? val.to_hash : val
+        end
       end
       out
     end
