@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.2.1 (2012-3-8)
+
+* Bug fix to make behavior predictable for translated properties when both the property
+  name and the translated property name are present in an initialization hash (issue #5).
+* Modelish::Base#to_hash now processes the contents of Array-typed properties.
+
 ## 0.2.0 (2012-1-16)
 
 * Added support for mapping the same input property name to multiple outputs. This means that
