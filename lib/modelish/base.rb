@@ -11,23 +11,25 @@ module Modelish
     include Validations
     extend Configuration
 
-    def initialize(attributes = {}, &block)
+    def initialize(options={}, &block)
       super(&block)
 
       self.class.defaults.each_pair do |prop, value|
         self[prop] = value
       end
 
+      attributes = options ? options.dup : {}
+
       attributes.delete_if do |k,v|
         if self.class.translations.keys.include?(k.to_sym)
           self[k]=v
           true
         end
-      end if attributes
+      end
 
       attributes.each_pair do |att, value|
         self[att] = value
-      end if attributes
+      end
     end
 
 
