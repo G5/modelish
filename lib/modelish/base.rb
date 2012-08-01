@@ -46,6 +46,8 @@ module Modelish
     # @option opts [true,false] :required enables validation for the property
     #                                      value's presence; nil or blank values
     #                                      will cause validation methods to fail
+    #                                      This overrides the default dash required
+    #                                      property behavior.
     # @option opts [Integer] :max_length the maximum allowable length for a valid
     #                                     property value
     # @option opts [true,false] :validate_type enables validation for the property value's
@@ -55,12 +57,13 @@ module Modelish
     #                                 message or error object if validation fails.
     #                                 See {Modelish::Validations}
     def self.property(name, options={})
+      required_property=options.delete(:required)
       super
 
       add_property_type(name, options[:type]) if options[:type]
       add_property_translation(options[:from], name) if options[:from]
 
-      add_validator(name) { |val| validate_required(name => val).first } if options[:required]
+      add_validator(name) { |val| validate_required(name => val).first } if required_property
       add_validator(name) { |val| validate_length(name, val, options[:max_length]) } if options[:max_length]
       add_validator(name, &options[:validator]) if options[:validator]
       add_validator(name) { |val| validate_type(name, val, options[:type]) } if options[:validate_type]
