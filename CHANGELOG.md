@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.2.3 (2012-8-17)
+
+* Tweak implementation of validate! method to call validate method, replacing a parallel
+  implementation that called individual property validators.
+
 ## 0.2.2 (2012-3-8)
 
 * Minor bug fix in Modelish::Base#initialize to prevent modification of argument hash
