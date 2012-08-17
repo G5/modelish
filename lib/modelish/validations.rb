@@ -26,11 +26,8 @@ module Modelish
     #
     # @raise ArgumentError when any property fails validation
     def validate!
-      call_validators do |name,message| 
-        error = to_error(message)
-        raise error if error
-      end
-      nil
+      errors = validate
+      raise validate.first[1].first unless validate.empty?
     end
 
     def valid?
