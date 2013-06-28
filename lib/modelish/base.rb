@@ -14,10 +14,6 @@ module Modelish
     def initialize(options={}, &block)
       super(&block)
 
-      self.class.defaults.each_pair do |prop, value|
-        self[prop] = value
-      end
-
       attributes = options ? options.dup : {}
 
       attributes.delete_if do |k,v|
@@ -31,7 +27,6 @@ module Modelish
         self[att] = value
       end
     end
-
 
     # Creates a new attribute.
     #
@@ -57,12 +52,16 @@ module Modelish
     #                                 message or error object if validation fails.
     #                                 See {Modelish::Validations}
     def self.property(name, options={})
+
+      #Hashie::Dash.property is going to delete :required from the options hash
+      required = options[:required]
+
       super
 
       add_property_type(name, options[:type]) if options[:type]
       add_property_translation(options[:from], name) if options[:from]
 
-      add_validator(name) { |val| validate_required(name => val).first } if options[:required]
+      add_validator(name) { |val| validate_required(name => val).first } if required
       add_validator(name) { |val| validate_length(name, val, options[:max_length]) } if options[:max_length]
       add_validator(name, &options[:validator]) if options[:validator]
       add_validator(name) { |val| validate_type(name, val, options[:type]) } if options[:validate_type]
@@ -94,6 +93,11 @@ module Modelish
     end
 
     private
+
+    def assert_required_properties_set!
+      true
+    end
+
     def property_exists?(property)
       if self.class.property?(property.to_sym)
         true
