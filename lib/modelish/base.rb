@@ -98,6 +98,10 @@ module Modelish
       true
     end
 
+    def assert_property_required!
+      true
+    end
+
     def property_exists?(property)
       if self.class.property?(property.to_sym)
         true
