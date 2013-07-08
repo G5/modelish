@@ -98,6 +98,8 @@ Validations can be run using methods that return an error map (keyed on property
         invalid_bar.validate!
         # ArgumentError: important_field must not be nil or blank
 
+In order to implement more complex validations that cannot be accomplished through simple property-specific validators, you may override the `validate` method. The `validate!` and `valid?` methods will continue to work as expected, as long as the overridden `validate` fulfills the contract (returning a hash keyed on property name, with values being arrays of error objects).
+
 ## Configuration ##
 
 By default, modelish will raise an error when it encounters unknown property names in an initialization hash. If you'd prefer modelish to ignore unknown properties, you can override this default behavior for all of your modelish models:

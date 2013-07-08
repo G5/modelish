@@ -61,7 +61,10 @@ module Modelish
       add_property_type(name, options[:type]) if options[:type]
       add_property_translation(options[:from], name) if options[:from]
 
-      add_validator(name) { |val| validate_required(name => val).first } if required
+      if options[:required] || (self.respond_to?(:required?) && required?(name))
+        add_validator(name) { |val| validate_required(name => val).first }
+      end
+
       add_validator(name) { |val| validate_length(name, val, options[:max_length]) } if options[:max_length]
       add_validator(name, &options[:validator]) if options[:validator]
       add_validator(name) { |val| validate_type(name, val, options[:type]) } if options[:validate_type]
@@ -93,15 +96,6 @@ module Modelish
     end
 
     private
-
-    def assert_required_properties_set!
-      true
-    end
-
-    def assert_property_required!(property, value)
-      true
-    end
-
     def property_exists?(property)
       if self.class.property?(property.to_sym)
         true
@@ -111,6 +105,18 @@ module Modelish
       else
         raise NoMethodError, "The property '#{property}' is not defined for this Modelish object."
       end
+    end
+
+    def assert_required_properties_set!
+      nil
+    end
+
+    def assert_property_required!(property,value)
+      nil
+    end
+
+    def assert_property_exists!(property)
+      property_exists?(property)
     end
   end
 end
