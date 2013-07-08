@@ -98,7 +98,7 @@ module Modelish
       true
     end
 
-    def assert_property_required!
+    def assert_property_required!(property, value)
       true
     end
 
