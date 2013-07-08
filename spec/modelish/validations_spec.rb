@@ -143,7 +143,7 @@ describe Modelish::Validations do
     end
 
     context "when max_length is nil" do
-      let(:value) { mock(:length => 50) }
+      let(:value) { double(:length => 50) }
       let(:max_length) { nil }
 
       it { should be_nil }
