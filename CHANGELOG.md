@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.3.0 (2013-7-8)
+
+* Upgrade hashie dependency to v2.0.x
+
 ## 0.2.4 (2012-8-23)
 
 * Make modelish compatible with hashie v1.x, instead of pinning to hashie v1.0.0.
