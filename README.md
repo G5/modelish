@@ -3,6 +3,11 @@
 When a real modeling framework is too heavy, sometimes you want something just 
 a little modelish.
 
+**IMPORTANT NOTE**: modelish is considered legacy code at this point.
+Maintenance will continue for bug fixes, but active development has ceased.
+For new projects that require lightweight models, try looking at something like
+[virtus](https://github.com/solnic/virtus) instead.
+
 ## Overview ##
 
 If a Hash or OpenStruct almost suits your needs, but you need bits of 
