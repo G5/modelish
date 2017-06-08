@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.4.0 (2017-06-08)
+
+* Relax dependency on hashie
+* Ensure compatibility with ruby 2.x
+
 ## 0.3.0 (2013-7-8)
 
 * Upgrade hashie dependency to v2.0.x

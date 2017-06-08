@@ -19,11 +19,11 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency('hashie','~> 2.0.5')
+  s.add_dependency('hashie','~> 2.0')
 
   s.add_development_dependency('rspec','~> 2.5')
   s.add_development_dependency('yard', '~> 0.6')
-  s.add_development_dependency('bluecloth','~> 2.0.11')
+  s.add_development_dependency('bluecloth','~> 2.0')
 
   s.has_rdoc = true
 end
