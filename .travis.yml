@@ -1,9 +1,13 @@
 language: ruby
 rvm:
   - 1.9.3
-  - 2.2.2
+  - 2.2.7
   - 2.3.4
   - 2.4.1
+gemfile:
+  - gemfiles/hashie_1.gemfile
+  - gemfiles/hashie_2.gemfile
+  - gemfiles/hashie_3.gemfile
 before_install:
   - gem install bundler
 script:
