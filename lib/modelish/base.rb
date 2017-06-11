@@ -83,7 +83,7 @@ module Modelish
     end
 
     def hash_value(property)
-      val = send(property).dup
+      val = send(property)
 
       if val.is_a?(Array)
         val.map { |x| x.respond_to?(:to_hash) ? x.to_hash : x }
@@ -119,25 +119,24 @@ module Modelish
       #                                 validation fails.
       #                                 See {Modelish::Validations}
       def property(name, options = {})
-        # Hashie::Dash.property is going to delete keys from the options
-        opts = options.dup
+        # Hashie::Dash.property deletes the :required key from the options
+        required = options[:required]
         super
 
-        add_property_type(name, opts[:type]) if opts[:type]
-        add_property_translation(opts[:from], name) if opts[:from]
+        add_property_type(name, options[:type]) if options[:type]
+        add_property_translation(options[:from], name) if options[:from]
 
-        process_required(name, opts)
-        process_max_length(name, opts)
-        process_validate_type(name, opts)
+        process_required(name) if required
+        process_max_length(name, options)
+        process_validate_type(name, options)
 
-        add_validator(name, &opts[:validator]) if opts[:validator]
+        add_validator(name, &options[:validator]) if options[:validator]
       end
 
       private
 
-      def process_required(name, options)
-        return unless options[:required] &&
-                      (respond_to?(:required?) && required?(name))
+      def process_required(name)
+        return unless respond_to?(:required?) && required?(name)
         add_validator(name) { |val| validate_required(name => val).first }
       end
 
