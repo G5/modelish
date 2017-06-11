@@ -1,9 +1,15 @@
 # CHANGELOG
 
+## 1.0.0.pre.1 (2017-06-11)
+
+* **Backwards incompatible change**: dropped support for ruby 1.8.7
+* Relax dependency on hashie to >= 1.0
+* Add support for ruby 2.3 and 2.4
+* General cleanup in dev and CI environments
+
 ## 0.4.0 (2017-06-08)
 
-* Relax dependency on hashie
-* Ensure compatibility with ruby 2.x
+* **yanked** on 2017-06-11 because it broke compatibility with ruby 1.8.7
 
 ## 0.3.0 (2013-7-8)
 
