@@ -15,8 +15,6 @@ RSpec.shared_examples_for 'a typed property' do |prop_name, prop_type|
 
   subject { model }
 
-  let(:error_type) { ArgumentError }
-
   it { is_expected.to respond_to(accessor) }
   its(prop_name) { is_expected.to eq(default_value) }
 
@@ -91,7 +89,8 @@ RSpec.shared_examples_for 'a typed property' do |prop_name, prop_type|
         its(raw_accessor) { is_expected.to eq(property_value) }
 
         it 'raises an error when the bang accessor is invoked' do
-          expect { subject.send(bang_accessor) }.to raise_error(error_type)
+          error_class = respond_to?(:error_type) ? error_type : ArgumentError
+          expect { subject.send(bang_accessor) }.to raise_error(error_class)
         end
       end
     end
