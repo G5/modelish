@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-shared_examples_for 'an unknown property handler' do
+RSpec.shared_examples_for 'an unknown property handler' do
   context 'when ignore_unknown_properties is set to false' do
     let(:ignore_unknown_props) { false }
 

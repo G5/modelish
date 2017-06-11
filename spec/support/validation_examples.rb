@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Assumes that let(:model) has been defined
-shared_examples_for 'a valid model' do
+RSpec.shared_examples_for 'a valid model' do
   subject { model }
 
   it { is_expected.to be_valid }
@@ -29,7 +29,7 @@ end
 # model - the model on which the property has been defined
 # property_name - the name of the property that is invalid
 # error_count - the number of expected errors on the property
-shared_examples_for 'a model with an invalid property' do
+RSpec.shared_examples_for 'a model with an invalid property' do
   subject { model }
 
   it { is_expected.to_not be_valid }

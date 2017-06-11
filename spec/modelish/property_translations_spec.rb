@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Modelish::PropertyTranslations do
+RSpec.describe Modelish::PropertyTranslations do
   let(:model_class) do
     Class.new do
       include Modelish::PropertyTranslations

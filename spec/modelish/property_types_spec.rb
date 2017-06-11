@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Modelish::PropertyTypes do
+RSpec.describe Modelish::PropertyTypes do
   let(:model_class) { Class.new { include Modelish::PropertyTypes } }
   let(:model) { model_class.new }
 

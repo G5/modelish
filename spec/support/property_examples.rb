@@ -5,7 +5,7 @@
 # let(:property_name)
 # let(:property_value)
 # let(:default_value)
-shared_examples_for 'a modelish property' do
+RSpec.shared_examples_for 'a modelish property' do
   subject { model }
 
   let(:init_options) { { property_name => property_value } }

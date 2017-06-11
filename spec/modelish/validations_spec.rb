@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Modelish::Validations do
+RSpec.describe Modelish::Validations do
   let(:model_class) { Class.new { include Modelish::Validations } }
 
   let(:property_name) { :validated_property }

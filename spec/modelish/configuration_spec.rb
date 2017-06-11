@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Modelish::Configuration do
+RSpec.describe Modelish::Configuration do
   let(:test_module) do
     module TestModule
       extend Modelish::Configuration

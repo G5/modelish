@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Modelish::Base do
+RSpec.describe Modelish::Base do
   subject { model_class }
   let(:model_class) { Class.new(Modelish::Base) }
 

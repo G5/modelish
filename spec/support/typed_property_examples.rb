@@ -7,7 +7,7 @@
 # invalid_value - an object that cannot be translated to the property type
 # default_value - the default value for the property
 # error_type - defaults to ArgumentError
-shared_examples_for 'a typed property' do |prop_name, prop_type|
+RSpec.shared_examples_for 'a typed property' do |prop_name, prop_type|
   accessor = prop_name.to_sym
   raw_accessor = "raw_#{prop_name}".to_sym
   bang_accessor = "#{prop_name}!".to_sym
