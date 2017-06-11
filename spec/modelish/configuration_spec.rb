@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Modelish::Configuration do
@@ -11,10 +13,10 @@ describe Modelish::Configuration do
 
   after { test_module.reset }
 
-  it { should respond_to(:configure) }
+  it { is_expected.to respond_to(:configure) }
 
   context 'with default configuration' do
-    its(:ignore_unknown_properties) { should eq(false) }
+    its(:ignore_unknown_properties) { is_expected.to eq(false) }
   end
 
   describe '.configure' do
@@ -29,12 +31,12 @@ describe Modelish::Configuration do
 
       context 'when ignore_unknown_properties is true' do
         let(:ignore_unknown_props) { true }
-        its(:ignore_unknown_properties) { should eq(true) }
+        its(:ignore_unknown_properties) { is_expected.to eq(true) }
       end
 
       context 'when ignore_unknown_properties is false' do
         let(:ignore_unknown_props) { false }
-        its(:ignore_unknown_properties) { should eq(false) }
+        its(:ignore_unknown_properties) { is_expected.to eq(false) }
       end
     end
   end
@@ -44,8 +46,9 @@ describe Modelish::Configuration do
 
     before { test_module.configure { |c| c.ignore_unknown_properties = true } }
 
-    it 'should reset the value of ignore_unknown_properties' do
-      expect { subject }.to change { test_module.ignore_unknown_properties }.from(true).to(false)
+    it 'resets the value of ignore_unknown_properties' do
+      expect { subject }.to change { test_module.ignore_unknown_properties }
+        .from(true).to(false)
     end
   end
 
@@ -57,24 +60,26 @@ describe Modelish::Configuration do
     context 'when ignore_unknown_properties is true' do
       let(:ignore_unknown_props) { true }
 
-      it 'should not change the setting' do
+      it 'does not change the setting' do
         expect { subject }.to_not change { test_module.ignore_unknown_properties }
       end
-    end 
+    end
 
     context 'when ignore_unknown_properties is false' do
       let(:ignore_unknown_props) { false }
 
-      it 'should change the setting' do
-        expect { subject }.to change { test_module.ignore_unknown_properties }.from(false).to(true)
+      it 'changes the setting' do
+        expect { subject }.to change { test_module.ignore_unknown_properties }
+          .from(false).to(true)
       end
     end
 
     context 'when ignore_unknown_properties is nil' do
       let(:ignore_unknown_props) { nil }
 
-      it 'should change the setting' do
-        expect { subject }.to change { test_module.ignore_unknown_properties }.from(nil).to(true)
+      it 'changes the setting' do
+        expect { subject }.to change { test_module.ignore_unknown_properties }
+          .from(nil).to(true)
       end
     end
   end
@@ -87,15 +92,16 @@ describe Modelish::Configuration do
     context 'when ignore_unknown_properties is true' do
       let(:ignore_unknown_props) { true }
 
-      it 'should change the setting' do
-        expect { subject }.to change { test_module.ignore_unknown_properties }.from(true).to(false)
+      it 'changes the setting' do
+        expect { subject }.to change { test_module.ignore_unknown_properties }
+          .from(true).to(false)
       end
-    end 
+    end
 
     context 'when ignore_unknown_properties is false' do
       let(:ignore_unknown_props) { false }
 
-      it 'should not change the setting' do
+      it 'does not change the setting' do
         expect { subject }.to_not change { test_module.ignore_unknown_properties }
       end
     end
@@ -103,8 +109,9 @@ describe Modelish::Configuration do
     context 'when ignore_unknown_properties is nil' do
       let(:ignore_unknown_props) { nil }
 
-      it 'should change the setting' do
-        expect { subject }.to change { test_module.ignore_unknown_properties }.from(nil).to(false)
+      it 'changes the setting' do
+        expect { subject }.to change { test_module.ignore_unknown_properties }
+          .from(nil).to(false)
       end
     end
   end
