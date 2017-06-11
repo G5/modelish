@@ -67,7 +67,7 @@ describe Modelish::Base do
       let(:init_options) { {property_name => property_value} }
       subject { model.to_hash }
 
-      it { should have(1).key_pair }
+      its(:size) { is_expected.to eq(1) }
       it { should have_key(property_name.to_s) }
       its(['simple_property']) { should == property_value }
     end
@@ -87,7 +87,7 @@ describe Modelish::Base do
       subject { model.to_hash }
 
       context "with default value" do
-        it { should have(1).key_pair }
+        its(:size) { is_expected.to eq(1) }
         it { should have_key(property_name.to_s) }
         its(["default_property"]) { should == default_value }
       end
@@ -95,7 +95,7 @@ describe Modelish::Base do
       context 'without default value' do
         let(:init_options) { {property_name => property_value} }
 
-        it { should have(1).key_pair }
+        its(:size) { is_expected.to eq(1) }
         it { should have_key(property_name.to_s) }
         its(["default_property"]) { should == property_value }
       end
@@ -135,7 +135,7 @@ describe Modelish::Base do
         context "when set from untranslated property name" do
           let(:init_options) { {to_name => property_value} }
 
-          it { should have(1).key_pair }
+          its(:size) { is_expected.to eq(1) }
           it { should have_key(to_name.to_s) }
           its(['translated_property']) { should == property_value }
         end
@@ -143,7 +143,7 @@ describe Modelish::Base do
         context "when set from the translation" do
           let(:init_options) { {from_name => property_value} }
 
-          it { should have(1).key_pair }
+          its(:size) { is_expected.to eq(1) }
           it { should have_key(to_name.to_s) }
           its(['translated_property']) { should == property_value }
         end
@@ -185,7 +185,7 @@ describe Modelish::Base do
         context 'when initialized with first property' do
           let(:init_options) { {to_name => property_value} }
 
-          it { should have(2).key_pairs }
+          its(:size) { is_expected.to eq(2) }
 
           it { should have_key(to_name.to_s) }
           its(['translated_property']) { should == property_value }
@@ -197,7 +197,7 @@ describe Modelish::Base do
         context 'when initialized with second property' do
           let(:init_options) { {other_to_name => property_value} }
 
-          it { should have(2).key_pairs }
+          its(:size) { is_expected.to eq(2) }
 
           it { should have_key(to_name.to_s) }
           its(['translated_property']) { should be_nil }
@@ -211,7 +211,7 @@ describe Modelish::Base do
 
           context 'when there are no individual property initializations' do
 
-            it { should have(2).key_pairs }
+            its(:size) { is_expected.to eq(2) }
 
             it { should have_key(to_name.to_s) }
             its(['translated_property']) { should == property_value }
@@ -224,7 +224,7 @@ describe Modelish::Base do
             before { init_options[to_name] = other_value }
             let(:other_value) { 'and now for something completely different' }
 
-            it { should have(2).key_pairs }
+            its(:size) { is_expected.to eq(2) }
 
             it { should have_key(to_name.to_s) }
             its(['translated_property']) { should == other_value }
@@ -260,7 +260,7 @@ describe Modelish::Base do
         describe "#to_hash" do
           subject { model.to_hash }
 
-          it { should have(1).key_pair }
+          its(:size) { is_expected.to eq(1) }
           it { should have_key(property_name.to_s) }
           its(['my_int_property']) { should be_nil }
         end
@@ -277,7 +277,7 @@ describe Modelish::Base do
         describe "#to_hash" do
           subject { model.to_hash }
 
-          it { should have(1).key_pair }
+          its(:size) { is_expected.to eq(1) }
           it { should have_key(property_name.to_s) }
           its(['my_int_property']) { should == valid_typed_value }
         end
@@ -295,7 +295,7 @@ describe Modelish::Base do
       describe "#to_hash" do
         subject { model.to_hash }
 
-        it { should have(1).key_pair }
+        its(:size) { is_expected.to eq(1) }
         it { should have_key(property_name.to_s) }
         its(['my_int_property']) { should == default_value }
       end

@@ -4,3 +4,5 @@ source "http://rubygems.org"
 gemspec
 
 gem 'appraisal'
+
+gem 'hashie', '~> 1.0'

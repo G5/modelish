@@ -14,7 +14,7 @@ describe Modelish::Configuration do
   it { should respond_to(:configure) }
 
   context 'with default configuration' do
-    its(:ignore_unknown_properties) { should be_false }
+    its(:ignore_unknown_properties) { should eq(false) }
   end
 
   describe '.configure' do
@@ -29,12 +29,12 @@ describe Modelish::Configuration do
 
       context 'when ignore_unknown_properties is true' do
         let(:ignore_unknown_props) { true }
-        its(:ignore_unknown_properties) { should be_true }
+        its(:ignore_unknown_properties) { should eq(true) }
       end
 
       context 'when ignore_unknown_properties is false' do
         let(:ignore_unknown_props) { false }
-        its(:ignore_unknown_properties) { should be_false }
+        its(:ignore_unknown_properties) { should eq(false) }
       end
     end
   end

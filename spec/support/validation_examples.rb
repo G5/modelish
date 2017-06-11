@@ -44,7 +44,7 @@ shared_examples_for 'a model with an invalid property' do
       subject { prop_errors }
       let(:prop_errors) { errors[property_name] }
 
-      it { should have(error_count).errors }
+      its(:size) { is_expected.to eq(error_count) }
 
       it "should be a collection of ArgumentErrors" do
         prop_errors.each { |p| p.should be_an ArgumentError }

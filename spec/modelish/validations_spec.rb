@@ -17,19 +17,19 @@ describe Modelish::Validations do
     context "when value is nil" do
       let(:value) { nil }
 
-      it { should be_false }
+      it { should eq(false) }
     end
 
     context "when value is blank" do
       let(:value) { '    ' }
 
-      it { should be_false }
+      it { should eq(false) }
     end
 
     context "when value is not blank" do
       let(:value) { Object.new }
 
-      it { should be_true }
+      it { should eq(true) }
     end
   end
 
@@ -159,32 +159,32 @@ describe Modelish::Validations do
     context "when value is longer than max_length" do
       let(:value) { 'a' * (max_length + 1) }
 
-      it { should be_false }
+      it { should eq(false) }
     end
 
     context "when value is shorter than max_length" do
       let(:value) { 'a' * (max_length - 1) }
 
-      it { should be_true }
+      it { should eq(true) }
     end
 
     context "when value is the same length as max_length" do
       let(:value) { 'a' * max_length }
 
-      it { should be_true }
+      it { should eq(true) }
     end
 
     context "when value is nil" do
       let(:value) { nil }
 
-      it { should be_true }
+      it { should eq(true) }
     end
 
     context "when max_length is nil" do
       let(:value) { Object.new }
       let(:max_length) { nil }
 
-      it { should be_true }
+      it { should eq(true) }
     end
   end
 
@@ -519,25 +519,25 @@ describe Modelish::Validations do
       context "with nil value" do
         let(:property_value) { nil }
 
-        it { should be_true }
+        it { should eq(true) }
       end
 
       context "with valid int" do
         let(:property_value) { 42 }
 
-        it { should be_true }
+        it { should eq(true) }
       end
 
       context "with valid string" do
         let(:property_value) { '42' }
 
-        it { should be_true }
+        it { should eq(true) }
       end
 
       context "with invalid value" do
         let(:property_value) { 42.99 }
 
-        it { should be_false }
+        it { should eq(false) }
       end
     end
   end
@@ -563,13 +563,13 @@ describe Modelish::Validations do
       subject { validators }
       let(:validators) { model_class.validators }
 
-      it { should have(1).property }
+      its(:size) { is_expected.to eq(1) }
 
       describe "[property_name]" do
         subject { prop_validators }
         let(:prop_validators) { validators[property_name] }
 
-        it { should have(1).validator }
+        its(:size) { is_expected.to eq(1) }
 
         describe "#first" do
           subject { prop_validators.first }
@@ -633,13 +633,13 @@ describe Modelish::Validations do
       subject { validators }
       let(:validators) { model_class.validators }
 
-      it { should have(1).property }
+      its(:size) { is_expected.to eq(1) }
 
       describe "[property_name]" do
         subject { prop_validators }
         let(:prop_validators) { validators[property_name] }
 
-        it { should have(2).validators }
+        its(:size) { is_expected.to eq(2) }
 
         describe "#first" do
           subject { prop_validators.first }
@@ -682,7 +682,7 @@ describe Modelish::Validations do
         subject { errors }
         let(:errors) { model.validate }
 
-        it { should have(1).property }
+        its(:size) { is_expected.to eq(1) }
 
         it { should have_key(property_name) }
 
@@ -690,7 +690,7 @@ describe Modelish::Validations do
           subject { prop_errors }
           let(:prop_errors) { errors[property_name] }
 
-          it { should have(2).errors }
+          its(:size) { is_expected.to eq(2) }
 
           describe "#first" do
             subject { prop_errors.first }
