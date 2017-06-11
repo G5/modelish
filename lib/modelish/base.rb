@@ -66,13 +66,13 @@ module Modelish
       end
     end
 
-    def assert_required_properties_set!
-      nil
-    end
+    # Disable the various ways that hashie tries to assert required properties
+    # are set on initialization (modelish defers this until validation)
+    def assert_required_properties_set!; end
 
-    def assert_property_required!(_property, _value)
-      nil
-    end
+    def assert_property_required!(_property, _value); end
+
+    def assert_required_attributes_set!; end
 
     def assert_property_exists!(property)
       property_exists?(property)

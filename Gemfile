@@ -5,4 +5,4 @@ source 'http://rubygems.org'
 # Specify your gem's dependencies in modelish.gemspec
 gemspec
 
-gem 'hashie', '~> 2.0'
+gem 'hashie', '~> 3.0'
