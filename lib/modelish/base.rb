@@ -43,13 +43,13 @@ module Modelish
     def init_attributes(attributes)
       attributes.delete_if do |k, v|
         if self.class.translations.keys.include?(k.to_sym)
-          self[k] = v
+          self[k.to_sym] = v
           true
         end
       end
 
       attributes.each_pair do |att, value|
-        self[att] = value
+        self[att.to_sym] = value
       end
     end
 

@@ -10,18 +10,36 @@ RSpec.shared_examples_for 'a modelish property' do
 
   let(:init_options) { { property_name => property_value } }
 
-  it { is_expected.to respond_to(property_name) }
+  context 'when initialized with symbol key' do
+    let(:init_options) { { property_name.to_sym => property_value } }
+
+    it { is_expected.to respond_to(property_name) }
+  end
+
+  context 'when initialized with a string key' do
+    let(:init_options) { { property_name.to_s => property_value } }
+
+    it { is_expected.to respond_to(property_name) }
+  end
 
   describe 'getter' do
     subject { model.send(property_name) }
 
     context 'without init options' do
-      let(:init_options) { nil }
+      let(:init_options) {}
 
       it { is_expected.to eq(default_value) }
     end
 
-    context 'with init options' do
+    context 'with symbol init options' do
+      let(:init_options) { { property_name.to_sym => property_value } }
+
+      it { is_expected.to eq(property_value) }
+    end
+
+    context 'with string init options' do
+      let(:init_options) { { property_name.to_s => property_value } }
+
       it { is_expected.to eq(property_value) }
     end
   end
