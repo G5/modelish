@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.0.pre.2 (2017-06-13)
+
+* Bug fix for initialization with string attribute keys
+
 ## 1.0.0.pre.1 (2017-06-11)
 
 * **Backwards incompatible change**: dropped support for ruby 1.8.7
