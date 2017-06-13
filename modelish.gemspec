@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency('hashie', '>= 1.0.0')
 
   s.add_development_dependency('appraisal')
+  s.add_development_dependency('codeclimate-test-reporter')
   s.add_development_dependency('fuubar')
   s.add_development_dependency('rspec', '~> 3.6')
   s.add_development_dependency('rspec-its')
