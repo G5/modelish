@@ -8,6 +8,10 @@ gemfile:
   - gemfiles/hashie_1.gemfile
   - gemfiles/hashie_2.gemfile
   - gemfiles/hashie_3.gemfile
+dist: trusty
+sudo: false
+cache:
+  bundler: true
 before_install:
   - gem install bundler
 script:
