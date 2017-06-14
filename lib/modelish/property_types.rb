@@ -45,53 +45,15 @@ module Modelish
         accessor = property_name.to_sym
         return if property_types[accessor] == property_type
 
-        # TODO: Refactor. This method is getting unwieldy as more
-        # corner cases are discovered. A few well-placed design
-        # refinements should take care of it (now we just need to figure
-        # out what those are.)
         property_types[accessor] = property_type
 
-        raw_accessor = define_raw_accessor(accessor)
-        bang_accessor = define_bang_accessor(accessor)
+        # Protected attributes used during type conversion
+        define_raw_attribute(accessor)
+        define_bang_attribute(accessor)
+        define_typed_attribute(accessor)
+        define_safe_attribute(accessor)
 
-        typed_accessor = "_typed_#{accessor}".to_sym
-        typed_mutator = "#{typed_accessor}=".to_sym
-        to_safe = "_to_safe_#{accessor}".to_sym
-
-        class_eval do
-          remove_method(typed_accessor) if method_defined?(typed_accessor)
-          remove_method(typed_mutator) if method_defined?(typed_mutator)
-          attr_accessor typed_accessor
-          protected typed_accessor, typed_mutator
-
-          remove_method(to_safe) if method_defined?(to_safe)
-          define_method(to_safe) do
-            begin
-              send(bang_accessor)
-            rescue
-              send(raw_accessor)
-            end
-          end
-          protected to_safe
-
-          remove_method(accessor) if method_defined?(accessor)
-          define_method(accessor) do
-            val = send(typed_accessor)
-
-            unless val || send(raw_accessor).nil?
-              val = send(to_safe)
-              send(typed_mutator, val)
-            end
-
-            val
-          end
-
-          remove_method("#{accessor}=") if method_defined?("#{accessor}=")
-          define_method("#{accessor}=") do |val|
-            send("#{raw_accessor}=", val)
-            send(typed_mutator, send(to_safe))
-          end
-        end
+        define_public_attribute(accessor)
       end
 
       def property_types
@@ -100,40 +62,128 @@ module Modelish
 
       private
 
-      def define_raw_accessor(name)
-        accessor = name.to_sym
-        raw_accessor = "raw_#{name}".to_sym
+      def typed_accessor(name)
+        "_typed_#{name}".to_sym
+      end
 
-        mutator = "#{name}=".to_sym
-        raw_mutator = "raw_#{name}=".to_sym
+      def define_typed_attribute(name)
+        typed_accessor = typed_accessor(name)
+        typed_mutator = "#{typed_accessor}=".to_sym
 
         class_eval do
-          unless method_defined?(raw_accessor) && method_defined?(raw_mutator)
-            if method_defined?(accessor) && method_defined?(mutator)
-              alias_method(raw_accessor, accessor)
-              alias_method(raw_mutator, mutator)
+          remove_method(typed_accessor) if method_defined?(typed_accessor)
+          remove_method(typed_mutator) if method_defined?(typed_mutator)
+
+          attr_accessor typed_accessor
+          protected typed_accessor, typed_mutator
+        end
+      end
+
+      def safe_accessor(name)
+        "_to_safe_#{name}".to_sym
+      end
+
+      def define_safe_attribute(name)
+        safe_accessor = safe_accessor(name)
+        bang_accessor = bang_accessor(name)
+        raw_accessor = raw_accessor(name)
+
+        class_eval do
+          remove_method(safe_accessor) if method_defined?(safe_accessor)
+          define_method(safe_accessor) do
+            # Yes, we really do want to use inline rescue here, as this
+            # method should always try to return *something*
+            send(bang_accessor) rescue send(raw_accessor)
+          end
+          protected safe_accessor
+        end
+      end
+
+      def define_public_reader(name)
+        typed_accessor = typed_accessor(name)
+        safe_accessor = safe_accessor(name)
+
+        class_eval do
+          remove_method(name) if method_defined?(name)
+          define_method(name) do
+            send(typed_accessor) ||
+              send("#{typed_accessor}=", send(safe_accessor))
+          end
+        end
+      end
+
+      def define_public_writer(name)
+        typed_accessor = typed_accessor(name)
+        safe_accessor = safe_accessor(name)
+        raw_accessor = raw_accessor(name)
+
+        class_eval do
+          remove_method("#{name}=") if method_defined?("#{name}=")
+          define_method("#{name}=") do |val|
+            send("#{raw_accessor}=", val)
+            send("#{typed_accessor}=", send(safe_accessor))
+          end
+        end
+      end
+
+      def define_public_attribute(name)
+        define_public_reader(name)
+        define_public_writer(name)
+      end
+
+      def raw_accessor(name)
+        "raw_#{name}".to_sym
+      end
+
+      def define_raw_attribute_reader(name)
+        raw_accessor = raw_accessor(name)
+
+        class_eval do
+          unless method_defined?(raw_accessor)
+            if method_defined?(name)
+              alias_method(raw_accessor, name)
             else
-              attr_accessor raw_accessor
+              attr_reader raw_accessor
             end
           end
         end
-
-        raw_accessor
       end
 
-      def define_bang_accessor(property_name)
-        bang_accessor = "#{property_name}!".to_sym
-        converter = value_converter(property_types[property_name.to_sym])
+      def define_raw_attribute_writer(name)
+        raw_accessor = raw_accessor(name)
+
+        class_eval do
+          unless method_defined?("#{raw_accessor}=")
+            if method_defined?("#{name}=")
+              alias_method("#{raw_accessor}=", "#{name}=")
+            else
+              attr_writer raw_accessor
+            end
+          end
+        end
+      end
+
+      def define_raw_attribute(name)
+        define_raw_attribute_reader(name)
+        define_raw_attribute_writer(name)
+      end
+
+      def bang_accessor(name)
+        "#{name}!".to_sym
+      end
+
+      def define_bang_attribute(name)
+        bang_accessor = bang_accessor(name)
+        raw_accessor = raw_accessor(name)
+        converter = value_converter(property_types[name])
 
         class_eval do
           remove_method(bang_accessor) if method_defined?(bang_accessor)
           define_method(bang_accessor) do
-            value = send("raw_#{property_name}")
+            value = send(raw_accessor)
             converter && value ? converter.call(value) : value
           end
         end
-
-        bang_accessor
       end
 
       def value_converter(property_type)
