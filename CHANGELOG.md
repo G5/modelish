@@ -1,15 +1,12 @@
 # CHANGELOG
 
-## 1.0.0.pre.2 (2017-06-13)
-
-* Bug fix for initialization with string attribute keys
-
-## 1.0.0.pre.1 (2017-06-11)
+## 1.0.0 (2017-10-18)
 
 * **Backwards incompatible change**: dropped support for ruby 1.8.7
 * Relax dependency on hashie to >= 1.0
 * Add support for ruby 2.3 and 2.4
 * General cleanup in dev and CI environments
+* Bug fix for initialization with string attribute keys
 
 ## 0.4.0 (2017-06-08)
 

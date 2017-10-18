@@ -16,7 +16,7 @@ module Modelish
       self.ignore_unknown_properties = true
     end
 
-    # When set, raise errors during initializeation and property setting when
+    # When set, raise errors during initialization and property setting when
     # unknown property names are encountered. This is the default.
     #
     # @see {ignore_unknown_properties!}
