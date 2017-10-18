@@ -1,11 +1,14 @@
+# frozen_string_literal: true
+
 module Modelish
+  # Configure modelish's behavior on a global level
   module Configuration
     # If true, ignore unknown property names when initializing new models;
     # otherwise, raise an error when an unknown property is encountered.
     # Defaults to false.
     attr_accessor :ignore_unknown_properties
 
-    # When set, unknown property names will be ignored during modelish initialization
+    # When set, unknown property names will be ignored during initialization
     # and property setting.
     #
     # @see {raise_errors_on_unknown_properties!}
@@ -13,15 +16,16 @@ module Modelish
       self.ignore_unknown_properties = true
     end
 
-    # When set, unknown property names will cause errors to be raised when encountered
-    # during modelish initialization and property setting. This is the default behavior.
+    # When set, raise errors during initialization and property setting when
+    # unknown property names are encountered. This is the default.
     #
     # @see {ignore_unknown_properties!}
     def raise_errors_on_unknown_properties!
       self.ignore_unknown_properties = false
     end
 
-    # When this module is extended, set all configuration options to their default values
+    # When this module is extended, set all configuration options to their
+    # default values
     def self.extended(base)
       base.reset
     end
@@ -35,10 +39,7 @@ module Modelish
     #     config.ignore_unknown_properties = true
     #   end
     def configure
-      if block_given?
-        yield self
-      end
-
+      yield self if block_given?
       self
     end
 

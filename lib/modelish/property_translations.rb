@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Modelish
   # Mixin behavior for mapping one property name to another
   module PropertyTranslations
@@ -5,6 +7,7 @@ module Modelish
       base.extend(ClassMethods)
     end
 
+    # Methods for managing a dictionary of property translations
     module ClassMethods
       # Adds a property translation to the model.
       # This maps a mutator name to an existing property,
@@ -58,23 +61,32 @@ module Modelish
       # @param [Symbol,String] from_name the name of the source property
       # @param [Symbol,String] to_name the name of the destination property
       def add_property_translation(from_name, to_name)
-        self.translations[from_name.to_sym] ||= []
-        self.translations[from_name.to_sym] << to_name.to_sym
+        source = from_name.to_sym
+        target = to_name.to_sym
 
+        translations[source] ||= []
+        translations[source] << target
+        define_writer_with_translations(source)
+      end
+
+      # A map of the configured property translations, keyed on from_name
+      #
+      # @return [Hash<Symbol,Array>] key is from_name, value is list of to_names
+      def translations
+        @translations ||= {}
+      end
+
+      private
+
+      def define_writer_with_translations(source)
         class_eval do
-          define_method("#{from_name}=") do |value|
-            self.class.translations[from_name.to_sym].each do |prop|
-              self.send("#{prop}=", value)
+          remove_method("#{source}=") if method_defined?("#{source}=")
+          define_method("#{source}=") do |value|
+            self.class.translations[source].each do |target|
+              send("#{target}=", value)
             end
           end
         end
-      end
-
-      # A map of the translations that have already been configured, keyed on from_name.
-      #
-      # @return [Hash<Symbol,Array>] the key is the from_name, the value is an array to_names
-      def translations
-        @translations ||= {}
       end
     end
   end

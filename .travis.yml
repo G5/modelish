@@ -1,10 +1,24 @@
 language: ruby
 rvm:
   - 1.9.3
-  - 2.2.2
+  - 2.2.7
   - 2.3.4
   - 2.4.1
+gemfile:
+  - gemfiles/hashie_1.gemfile
+  - gemfiles/hashie_2.gemfile
+  - gemfiles/hashie_3.gemfile
+dist: trusty
+sudo: false
+cache:
+  bundler: true
 before_install:
   - gem install bundler
 script:
-  - bundle exec rspec spec
+  - bundle exec rspec
+after_script:
+  - bundle exec codeclimate-test-reporter
+addons:
+  code_climate:
+    repo_token:
+      secure: "YXAGhdc20mDicXunFasltPCTg3ekBPdyBdsUYml2iRiCdGx4ZjqEORPlg6AixgGnP0D2JHsYMaAPlAKYx3bOULv3lUH1JORTNa76hhaOOzLFAdIMcU2qbLi+8oHudZucojKqC4ppVMTJBS2P1WH+FUfxXCs7HNkUBlqCmmQdZ/g="
